@@ -19,9 +19,10 @@ class HFModel(model_base.ModelBase):
             model_path)
 
     def predict(self, inputs: str) -> str:
-        inputs = self.tokenizer(inputs, return_tensors='pt')
-        tokens = self.model.generate(**inputs)
-        return self.tokenizer.batch_decode(tokens)
+        model_inputs = self.tokenizer(inputs, return_tensors='pt')
+        tokens = self.model.generate(**model_inputs, max_new_tokens=128)
+        decodes = self.tokenizer.batch_decode(tokens)
+        return decodes[0].removeprefix(inputs)
 
     def decode_step(self, inputs: BatchEncoding) -> str:
         inputs = self.tokenizer(inputs, return_tensors='pt')

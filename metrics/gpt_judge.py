@@ -38,11 +38,11 @@ class GptJudge():
     def _parse_vote(self, vote: str) -> float | None:
         vote = vote.lower().strip().removeprefix('preferred: ')
         if 'a' in vote:
-            return 0
-        elif 'b' in vote:
             return 1
+        elif 'b' in vote:
+            return -1
         elif 'tie' in vote:
-            return 0.5
+            return 0
         return None
 
     def _judge_once(self, prompt: str, response_a: str, response_b: str, *, num_votes: int = 2) -> dict[str, Any]:
@@ -64,7 +64,7 @@ class GptJudge():
                 continue
             rationale = '\n'.join(lines[:-1])
             if flipped:
-                vote_score = 1 - vote_score
+                vote_score = -vote_score
                 rationale = '(flipped) ' + rationale
             scores.append(vote_score)
             rationales.append(rationale)

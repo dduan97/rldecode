@@ -1,0 +1,208 @@
+,info,summaries,choice,worker,batch,split,extra,formatted_prompt,model_a_scrape,model_b_scrape
+0,"{'id': 't3_1woj4q', 'post': ""So I dated this girl for 9 months and we broke up in September. We started to talk recently and became friends. We have talked and I admitted I still like her and would be with her if I had the chance but I know I don't so I don't worry about it and live my life.\n\nProblem is, whenever I see her she is seducing me. She convinced me to get a hotel room with her, when I see her she makes out with me or grabs my hair and pulling my head down and kissing my neck. She claims she has no feelings for me but calls and texts me every day and we talk about everything from if she is sad to just casual stuff  and every time I see her she can't seem to keep her hands off me. She also talks about how she wants to be the best I have had.\n\nNow I am fine with this casual hookup because we are great friends and we are just having fun, but her behavior is really starting to confuse me."", 'title': 'Me [M19] with ex [F18]. we have hooked up and plan to do it again, generally just confused about it all.', 'subreddit': 'relationships', 'site': None, 'article': None}","[{'text': "" ex i still have feelings for claims she doesn't have feelings for me but tries to get with me all the time and calls constantly."", 'policy': 'ref', 'note': 'ok'}, {'text': ' girlfriend of 9 months is basically seducing me and making out with me constantly despite claims she does not have feelings for me. I am fine with casual hookup but her behavior is really starting to confuse me.', 'policy': 'sup4_ppo_rm4_t.7', 'note': 'ok'}]",0,M4bdOszgybjO2qg2Dth5I1GOYAvE7V,batch12,valid1,{'confidence': 1},"POST:
+So I dated this girl for 9 months and we broke up in September. We started to talk recently and became friends. We have talked and I admitted I still like her and would be with her if I had the chance but I know I don't so I don't worry about it and live my life.
+
+Problem is, whenever I see her she is seducing me. She convinced me to get a hotel room with her, when I see her she makes out with me or grabs my hair and pulling my head down and kissing my neck. She claims she has no feelings for me but calls and texts me every day and we talk about everything from if she is sad to just casual stuff  and every time I see her she can't seem to keep her hands off me. She also talks about how she wants to be the best I have had.
+
+Now I am fine with this casual hookup because we are great friends and we are just having fun, but her behavior is really starting to confuse me.
+
+TLDR:
+","
+I have been in the hotel for a long time and I have been in the hotel for a long time. I have been in the hotel for a long time and I have been in the hotel for a long time. I have been in the hotel for a long time and I have been in the hotel for a long time and I have been in the hotel for a long time and I have been in the hotel for a long time and I have been in the hotel for a long time and I have been in the hotel for a long time and I have been in the hotel for a long time and I have been in the hotel","
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan of her.
+
+I am not a big fan"
+1,"{'id': 't3_1ls8xb', 'post': ""I've posted this already in askmen, but here we go:\n\nI've been thinking over a situation I had with my gf and trying to figure out, as the title suggests, if I was being reasonable or overreacting. \n\nThe scenario: We are dates for a somewhat big deal type event at my frat (dressed up and whatnot), we both get buzzed while drinking--> she randomly disappears while we're doing an activity together and I wait for her--> I wait for the better part of 30 min --> I search around everywhere to find her, eventually find her in an empty hallway fixing the collar/clothes of another guy really intimately--> the guy and I have a history and he is a massive d-bag--> I play it cool and tell her I was looking for her, she's still drunk/the d-bag looks caught and like he knew exactly what he was doing, backs off accordingly--> my gf and I go to a private room and I tell her how annoyed I was that I had no idea where she was, that she didn't tell me text or otherwise where she was for 1/2 an hour, only for me to find her being intimate and touching a guy who I dislike a lot--> She starts crying--> after some more crying and her storming off for a bit, we eventually reconcile enough to enjoy the rest of the night.\nNow. Looking back on that night, she says that I overreacted and shouldn't have gotten upset/annoyed and that I partially ruined the night. I think that I shouldn't have had to look for my gf/date forever and then find her with another guy. What do you guys think?"", 'title': 'Me[20M] with my GF [20F] duration, Reasonable or Overreacting?', 'subreddit': 'relationships', 'site': None, 'article': None}","[{'text': "" Gf disappears while we're out, I spend 30 min looking for her, find her with another guy, she gets upset and says I ruined the night."", 'policy': 'sup4_6b_t0.7', 'note': 'Unclear why she thinks op ruined the night. '}, {'text': ' Me [20M] with my gf [20F] duration, Reasonable or Overreacting?', 'policy': 'pretrain_12b_t.5', 'note': 'Totally unclear, no context for the question.'}]",0,p7cM83bE3XsWlS9lTIvYCNfCVgOeTK,batch12,valid2,{'confidence': 1},"POST:
+I've posted this already in askmen, but here we go:
+
+I've been thinking over a situation I had with my gf and trying to figure out, as the title suggests, if I was being reasonable or overreacting. 
+
+The scenario: We are dates for a somewhat big deal type event at my frat (dressed up and whatnot), we both get buzzed while drinking--> she randomly disappears while we're doing an activity together and I wait for her--> I wait for the better part of 30 min --> I search around everywhere to find her, eventually find her in an empty hallway fixing the collar/clothes of another guy really intimately--> the guy and I have a history and he is a massive d-bag--> I play it cool and tell her I was looking for her, she's still drunk/the d-bag looks caught and like he knew exactly what he was doing, backs off accordingly--> my gf and I go to a private room and I tell her how annoyed I was that I had no idea where she was, that she didn't tell me text or otherwise where she was for 1/2 an hour, only for me to find her being intimate and touching a guy who I dislike a lot--> She starts crying--> after some more crying and her storming off for a bit, we eventually reconcile enough to enjoy the rest of the night.
+Now. Looking back on that night, she says that I overreacted and shouldn't have gotten upset/annoyed and that I partially ruined the night. I think that I shouldn't have had to look for my gf/date forever and then find her with another guy. What do you guys think?
+
+TLDR:
+","
+I'm not sure if I'm right, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong.
+
+I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I'm wrong, but I'm not sure if I","
+I've been thinking over a situation I had with my gf and trying to figure out, as the title suggests, if I was being reasonable or overreacting. 
+
+The scenario: We are dates for a somewhat big deal type event at my frat (dressed up and whatnot), we both get buzzed while drinking--> she randomly disappears while we're doing an activity together and I wait for her--> I wait for the better part of 30 min --> I search around everywhere to find her, eventually find her in an empty hallway fixing the collar/clothes of another guy really intimately--> the guy and I"
+2,"{'id': 't3_3138pp', 'post': ""I'm a freshman in college and a friend of mine texted me last week and asked if I would be her back up date to her senior prom. I explained that I would be getting my wisdom teeth out at the end of May, and I very well may not be able to go so I can't promise anything, so I would have to be her backup.\n\nHowever, a guy in her grade asked her and she really didn't want to go with him, so she made up this story about how she was trying to work something out with a guy from the next town over, but I was her back up in case it didn't \n\nShe asked me if I would be cool going with her because if she went with someone else from her grade it would look bad. What should I say to her? I actually might be getting my wisdom teeth out during that time so I don't know. I don't want to leave her hanging but I've been to six proms and I think I've had my fill."", 'title': 'A friend from my old high school asked me to prom, but I really would rather not go.', 'subreddit': 'Advice', 'site': None, 'article': None}","[{'text': "" A friend of mine asked me to go to prom with her and to spare someone else's feelings, she asked me to go with her, but I don't want to. What should I tell her?"", 'policy': 'ref', 'note': 'A little redundant with ""asked me to go with her"". How does that spare someone else\'s feelings if she asks the writer to prom?'}, {'text': "" Friend from high school wants me to be her backup to senior prom but I have a scheduled wisdom teeth surgery soon, don't want to leave her hanging but I think I've had my fill of proms."", 'policy': 'sup4_6b_ppo_rm4_6b_t.5', 'note': 'Ok'}]",0,7rETShtxBTLBtbJKVyfpUYUNJjQAOC,batch19,valid2,{'confidence': 4},"POST:
+I'm a freshman in college and a friend of mine texted me last week and asked if I would be her back up date to her senior prom. I explained that I would be getting my wisdom teeth out at the end of May, and I very well may not be able to go so I can't promise anything, so I would have to be her backup.
+
+However, a guy in her grade asked her and she really didn't want to go with him, so she made up this story about how she was trying to work something out with a guy from the next town over, but I was her back up in case it didn't 
+
+She asked me if I would be cool going with her because if she went with someone else from her grade it would look bad. What should I say to her? I actually might be getting my wisdom teeth out during that time so I don't know. I don't want to leave her hanging but I've been to six proms and I think I've had my fill.
+
+TLDR:
+","
+I'm not going to be a freshman in college, but I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to be a freshman in college. I'm not going to","
+I'm a freshman in college and a friend of mine texted me last week and asked if I would be her back up date to her senior prom. I explained that I would be getting my wisdom teeth out at the end of May, and I very well may not be able to go so I can't promise anything, so I would have to be her backup.
+
+However, a guy in her grade asked her and she really didn't want to go with him, so she made up this story about how she was trying to work something out with a guy from the next town over, but I was her back up in"
+3,"{'id': 't3_1suqgz', 'post': 'My upstairs neighbor is a woman in her 80\'s. A few months ago her adult, I\'m guessing early 50\'s, son moved in with her. My free encounters with him have been pleasant, but he was very obviously drunk. About once a week I can hear them arguing late at night. Tonight was the the clearest I\'ve heard them. Complete with him screaming, ""Fuck you! Be nice to me."" \n\nI\'m not close with my neighbor and I don\'t know the history with her son. It never sounds like he hits her, or vice versa. I\'ve also never seen any sign of physical abuse. \n\nI live in Chicago where there are senior care groups but they normally need police intervention first. If the police are called and she refuses to cooperate, I\'m scared that the next drunken argument could go beyond that. \n\nTo top it all off, they invited my roommate and I to a little get together tomorrow. \n\nAny suggestions?', 'title': ""My upstairs neighbor's adult son is verbally abusive to her, what can I do?"", 'subreddit': 'AskReddit', 'site': None, 'article': None}","[{'text': "" My neighbor's drunk son is verbally abusive to her. They're inviting me and my roommate to a party tomorrow. What do I do?"", 'policy': 'sup2_bo8_rm1', 'note': 'Ok'}, {'text': "" My upstairs neighbor's son is verbally abusive and violent. They invited my roommate and I to a little get together. How do I get a police officer involved?"", 'policy': 'sup2', 'note': 'Disjointed'}]",0,p4Oh7rUGyLe1EpilJFWr9sPDpkO016,batch6,valid1,{'confidence': 3},"POST:
+My upstairs neighbor is a woman in her 80's. A few months ago her adult, I'm guessing early 50's, son moved in with her. My free encounters with him have been pleasant, but he was very obviously drunk. About once a week I can hear them arguing late at night. Tonight was the the clearest I've heard them. Complete with him screaming, ""Fuck you! Be nice to me."" 
+
+I'm not close with my neighbor and I don't know the history with her son. It never sounds like he hits her, or vice versa. I've also never seen any sign of physical abuse. 
+
+I live in Chicago where there are senior care groups but they normally need police intervention first. If the police are called and she refuses to cooperate, I'm scared that the next drunken argument could go beyond that. 
+
+To top it all off, they invited my roommate and I to a little get together tomorrow. 
+
+Any suggestions?
+
+TLDR:
+","
+I'm not sure if I'm going to be in the same room as you, but I'm not sure if I'm going to be in the same room as you.
+
+I'm not sure if I'm going to be in the same room as you, but I'm not sure if I'm going to be in the same room as you.
+
+I'm not sure if I'm going to be in the same room as you, but I'm not sure if I'm going to be in the same room as you.
+
+I'm not sure if I'm going to be in the same room as you","
+I'm not sure if I'm going to be able to get a lawyer to help me.
+
+I'm not sure if I'm going to be able to get a lawyer to help me.
+
+I'm not sure if I'm going to be able to get a lawyer to help me.
+
+I'm not sure if I'm going to be able to get a lawyer to help me.
+
+I'm not sure if I'm going to be able to get a lawyer to help me.
+
+I'm not sure if I'm going to be able to get a lawyer to help me.
+
+I"
+4,"{'id': 't3_1l49ao', 'post': 'My Girlfriend has guy friends (like most normal women) and i know a couple of them like her and this weekend one of them (he is in a ton of her major classes) Drunk texted her professing his feelings. She doesnt think its a big deal but im Having a super hard time Not Giving a Fuck about this. I just need some help figuring out how to deal with my side of the problem. i think its just the thought of some skeezy dudes i dont really know trying to eventually take what i have from me. she assures me that its not anything to worry about but im a guy and i know how our brains work and i realize that you can home wreck a relationship really freaking easy and that scares the crap out of me. \nAdvice would be awesome. Thanks', 'title': 'I [21/m] need some advice on how to deal with other guys crushing on my GF (22/f)', 'subreddit': 'relationship_advice', 'site': None, 'article': None}","[{'text': ' Girlfriend has guy friends who i think like her and one drunken friend tried to crush on her. Need advice on how to deal with this stuff.', 'policy': 'sup4_ppo_rm3_kl10', 'note': '\n·--------------------\n·Purpose:how to deal with friends crushing on GF. '}, {'text': ' have crush on GF, other dude drunkenly professes feelings, how do i deal with this situation without being a total asshole?', 'policy': 'sup4_ppo_rm3_kl10', 'note': '[have crush on GF]\n-weird statement\n--------------------\n·'}]",1,uvzut5OK2bvei9zoCDdktcfLENYioY,batch10,valid1,{'confidence': 6},"POST:
+My Girlfriend has guy friends (like most normal women) and i know a couple of them like her and this weekend one of them (he is in a ton of her major classes) Drunk texted her professing his feelings. She doesnt think its a big deal but im Having a super hard time Not Giving a Fuck about this. I just need some help figuring out how to deal with my side of the problem. i think its just the thought of some skeezy dudes i dont really know trying to eventually take what i have from me. she assures me that its not anything to worry about but im a guy and i know how our brains work and i realize that you can home wreck a relationship really freaking easy and that scares the crap out of me. 
+Advice would be awesome. Thanks
+
+TLDR:
+","
+I'm not sure if you're right, but I'm not sure if you're right. I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right, but I'm not sure if you're right","
+I'm not a big fan of the ""I'm not a bad guy"" approach. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a bad guy. I'm not a"
+5,"{'id': 't3_2olkpy', 'post': ""I've been talking to this girl for a little while now, and she told me a few days ago that she doesn't eat. She is extremely thin, technically underweight, and thinks she is fat. \n\nShe was in a verbally abusive relationship before, and I feel like that's where this insecurity comes from. It's just so upsetting to me to think of how she starves herself to try to feel pretty, when she could eat all she wants every day and still be the cutest and most interesting person in the room. \n\nI've never dealt with a situation like this before, and would love it if anyone who has had experience with this (an SO who was anorexic or someone who has been through it themselves) could give me some tips on ways to help her gain confidence and let her know that she is in fact beautiful on the inside and out no matter what she weighs."", 'title': ""The girl I'm dating [20f] told me [20m] that she is anorexic. How can I be supportive?"", 'subreddit': 'relationships', 'site': None, 'article': None}","[{'text': "" girl I'm dating is anorexic bc of emotionally abusive past. need advice on how to support her and let her know she is beautiful inside and out despite her weight. pls help."", 'policy': 'sup4_ppo_rm3_kl69', 'note': 'Ok'}, {'text': ' Anorexic girlfriend says she is fat and is unwilling to change her ways because she is insecure and wants to be loved and accepted for who she is. How can I be supportive?', 'policy': 'sup4_ppo_rm3_kl2', 'note': ""'supportive' - of gf's decision to be anorexic? ""}]",0,RMwrIV50cNusBthNvLs1wSNdqFpQAg,batch11,valid1,{'confidence': 1},"POST:
+I've been talking to this girl for a little while now, and she told me a few days ago that she doesn't eat. She is extremely thin, technically underweight, and thinks she is fat. 
+
+She was in a verbally abusive relationship before, and I feel like that's where this insecurity comes from. It's just so upsetting to me to think of how she starves herself to try to feel pretty, when she could eat all she wants every day and still be the cutest and most interesting person in the room. 
+
+I've never dealt with a situation like this before, and would love it if anyone who has had experience with this (an SO who was anorexic or someone who has been through it themselves) could give me some tips on ways to help her gain confidence and let her know that she is in fact beautiful on the inside and out no matter what she weighs.
+
+TLDR:
+","
+I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her, but I'm not sure if I'm going to be able to help her,","
+I've been talking to this girl for a little while now, and she told me a few days ago that she doesn't eat. She is extremely thin, technically underweight, and thinks she is fat. 
+
+I've been talking to this girl for a little while now, and she told me a few days ago that she doesn't eat. She is extremely thin, technically underweight, and thinks she is fat. 
+
+I've been talking to this girl for a little while now, and she told me a few days ago that she doesn't eat. She is extremely thin, technically underweight, and thinks she"
+6,"{'id': 't3_32932f', 'post': 'I play video games; I have since I was a kid starting with Pokemon red. I still play them everyday, yet I refuse to call myself a gamer.\n\nThe way I see it, gaming has become more popular than ever. There are more people playing then ever before and subsequently more self-proclaimed gamers. However, since it has become so main stream, I don\'t see how it\'s much different than saying ""I\'m a TV watcher"" or ""music listener."" Now if you said you only played tabletop or something, that\'d be different.\n\nThe truth is that it isn\'t about being hardcore or even playing games. It\'s about wanting to be in a nerdy subculture that pretends it\'s niche when that couldn\'t be farther from the truth. Playing games is as mainstream as it gets.\n\nNo, it\'s about the culture that I think is frankly ridiculous. It\'s a bunch of nostalgia circlejerks and pseudo inside jokes for things that are actually quite popular (took an arrow to the knee, etc.) It doesn\'t matter if the latest call of duty (for example) is good or not, what matters is whether it\'s popular with ""gamers.""\n\n""CoD is the same every time but the new Pokemon is pretty swell."" \n\nThis hypocrisy and favoritism makes my blood boil. I\'ve never played call of duty because it\'s not my cup of tea, not because ""that\'s what casuals play."" The whole PC master race also irritates me. Who really gives a shit what someones console preference is?\n\nI can\'t even finish my rant. It frustrates me that I ever called myself a gamer as a kid anyway. It\'s just so dumb.', 'title': 'Why would anyone want to call themselves a gamer? (Rant)', 'subreddit': 'self', 'site': None, 'article': None}","[{'text': "" gaming culture has become too mainstream and hypocritical, acting like it's more important than it is about actual gaming. I refuse to call myself a gamer due to this ridiculousness."", 'policy': 'sup4_6b_ppo_rm3_6b_kl15', 'note': '———————\n·Ok\n———————\n$A: worse; barely touches essence.\n$B: worse; general. \n$C: ***\n\u2028$D: better; captures essence better. '}, {'text': "" I refuse to call myself a gamer because of how ridiculous the gaming culture has become. I feel like it's a bunch of self-important nerds pretending they're something when they're not."", 'policy': 'sup4_6b_ppo_rm4_6b_kl14', 'note': '———————\n·Ok. \n———————\n$A: worse; barely touches essence. \n$B: ***\n$C: better; more precise. \n\u2028$D: better; captures essence better. '}]",0,uvzut5OK2bvei9zoCDdktcfLENYioY,batch14,valid2,{'confidence': 4},"POST:
+I play video games; I have since I was a kid starting with Pokemon red. I still play them everyday, yet I refuse to call myself a gamer.
+
+The way I see it, gaming has become more popular than ever. There are more people playing then ever before and subsequently more self-proclaimed gamers. However, since it has become so main stream, I don't see how it's much different than saying ""I'm a TV watcher"" or ""music listener."" Now if you said you only played tabletop or something, that'd be different.
+
+The truth is that it isn't about being hardcore or even playing games. It's about wanting to be in a nerdy subculture that pretends it's niche when that couldn't be farther from the truth. Playing games is as mainstream as it gets.
+
+No, it's about the culture that I think is frankly ridiculous. It's a bunch of nostalgia circlejerks and pseudo inside jokes for things that are actually quite popular (took an arrow to the knee, etc.) It doesn't matter if the latest call of duty (for example) is good or not, what matters is whether it's popular with ""gamers.""
+
+""CoD is the same every time but the new Pokemon is pretty swell."" 
+
+This hypocrisy and favoritism makes my blood boil. I've never played call of duty because it's not my cup of tea, not because ""that's what casuals play."" The whole PC master race also irritates me. Who really gives a shit what someones console preference is?
+
+I can't even finish my rant. It frustrates me that I ever called myself a gamer as a kid anyway. It's just so dumb.
+
+TLDR:
+","
+I'm not a gamer, but I'm a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not a gamer.
+
+I'm not","
+I'm not a gamer. I'm a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I'm not a person who has a passion for games. I"
+7,"{'id': 't3_37kp7h', 'post': ""I am a gamer who always met guys on the internet. Within the past few years, I've been in a two serious long distance relationships that haven't worked out. Each one lasting a year. We would bond over our love of gaming and Skype/text everyday. The first one was 2012-2013 and the second one was 2013-2014.\n\nI have been doing online school for two years; I used to go to a public highschool and I'm very shy. I don't talk a lot, I pretty much have social anxiety and it's hard for me to go up to people that I don't know.\n\nI don't like the feeling of when someone says hey, I can't say it back, or I do and I get so anxious because I can't carry a conversation. I want to be able to feel confident to make friends, especially ones in my repeated grade (supposed to be a senior, but I'm still a junior.)\n\nI feel like my social skills are the one thing that keeps me away from happiness most of the time, and well, I think it would be nice to legitly have a boyfriend for once. I haven't even experienced anything, and I feel partly like I'm missing out.\n\nI go back to my public school in September. Do you have any tips to overcome shyness? And I guess, how did you meet your girlfriend/boyfriend in school? Thank you in advance."", 'title': 'I [16 F] want my first real relationship.', 'subreddit': 'relationships', 'site': None, 'article': None}","[{'text': "" I am a video gamer who wants to have a real relationship with someone, and I feel like I'm missing out."", 'policy': 'sup4_t0.7', 'note': ""Video gaming has limited the author's connections with the outside world.""}, {'text': "" I'm a shy 16 year old girl, who wants to have a boyfriend. I have never really had one and I feel like I get left out."", 'policy': 'pretrain_12b_t.5', 'note': 'Okay'}]",1,BYcMzzjuFgaA59QDKoAgY07PyyG0qC,batch16,valid2,{'confidence': 9},"POST:
+I am a gamer who always met guys on the internet. Within the past few years, I've been in a two serious long distance relationships that haven't worked out. Each one lasting a year. We would bond over our love of gaming and Skype/text everyday. The first one was 2012-2013 and the second one was 2013-2014.
+
+I have been doing online school for two years; I used to go to a public highschool and I'm very shy. I don't talk a lot, I pretty much have social anxiety and it's hard for me to go up to people that I don't know.
+
+I don't like the feeling of when someone says hey, I can't say it back, or I do and I get so anxious because I can't carry a conversation. I want to be able to feel confident to make friends, especially ones in my repeated grade (supposed to be a senior, but I'm still a junior.)
+
+I feel like my social skills are the one thing that keeps me away from happiness most of the time, and well, I think it would be nice to legitly have a boyfriend for once. I haven't even experienced anything, and I feel partly like I'm missing out.
+
+I go back to my public school in September. Do you have any tips to overcome shyness? And I guess, how did you meet your girlfriend/boyfriend in school? Thank you in advance.
+
+TLDR:
+","
+I'm not a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person, I'm a shy person,","
+I'm a gamer who always met guys on the internet. Within the past few years, I've been in a two serious long distance relationships that haven't worked out. Each one lasting a year. We would bond over our love of gaming and Skype/text everyday. The first one was 2012-2013 and the second one was 2013-2014.
+
+I have been doing online school for two years; I used to go to a public highschool and I'm very shy. I don't talk a lot, I pretty much have social anxiety and it's hard for me to go up to people that I don't know"
+8,"{'id': 't3_3clvmw', 'post': 'There were a few break-ins into cars and stuff in our neighborhood. My Dad decided that he wanted to buy a gun to protect the family in case of emergency. So he went out and bought a handgun. As far as I can tell, it\'s registered and legal. But the gun is making me very nervous and from what I looked up he isn\'t treating it like he should.\n\n1. He doesn\'t know how to shoot and doesn\'t want to learn – he says in case of emergency that his aim will be automatic and ""the adrenaline will get him through it"".\n2. He keeps it fully loaded all the time. I am the oldest in our house, my brother is 12 and my sister is 14, I\'m worried they could just pick it up and accidentally shoot. \n3. He doesn\'t have a case for it and keeps it wherever he wants. He likes to keep in clean and loaded in case of emergency or whatever and leaves it lying on his nightstand, coffee tables, etc. \n\nAm I wrong to feel like this is unsafe? I tried to talk to him about it and he twisted it into me being an anti gun person and accused me of being brainwashed by Obama. He doesn\'t want to shoulder the extra expense of buying a case or a safe for it either, and he is very absentminded about where he leaves stuff anyway. I just want him to take proper safety precautions. Our Mom isn\'t in the picture so I have to figure this out. What do I do? How do I make him understand my feelings? Am I being overdramatic?', 'title': 'Me [17 F] with my Dad [43 M], he bought a gun but I feel like he is not being safe with it.', 'subreddit': 'relationships', 'site': None, 'article': None}","[{'text': "" My Dad bought a gun but isn't taking proper safety precautions/care. I want him to stop, he doesn't see/hears my side of things. What do I do?"", 'policy': 'sup4_bo256_rm3', 'note': None}, {'text': "" Dad bought gun but doesn't know how to shoot it and keeps it loaded too much. I feel like it's unsafe and he's not taking proper safety measures."", 'policy': 'sup4_bo128_rm3', 'note': None}]",0,KZL1qeRzHNYSfDAuOctL1iyVV8WC5N,batch8,valid1,{'confidence': 3},"POST:
+There were a few break-ins into cars and stuff in our neighborhood. My Dad decided that he wanted to buy a gun to protect the family in case of emergency. So he went out and bought a handgun. As far as I can tell, it's registered and legal. But the gun is making me very nervous and from what I looked up he isn't treating it like he should.
+
+1. He doesn't know how to shoot and doesn't want to learn – he says in case of emergency that his aim will be automatic and ""the adrenaline will get him through it"".
+2. He keeps it fully loaded all the time. I am the oldest in our house, my brother is 12 and my sister is 14, I'm worried they could just pick it up and accidentally shoot. 
+3. He doesn't have a case for it and keeps it wherever he wants. He likes to keep in clean and loaded in case of emergency or whatever and leaves it lying on his nightstand, coffee tables, etc. 
+
+Am I wrong to feel like this is unsafe? I tried to talk to him about it and he twisted it into me being an anti gun person and accused me of being brainwashed by Obama. He doesn't want to shoulder the extra expense of buying a case or a safe for it either, and he is very absentminded about where he leaves stuff anyway. I just want him to take proper safety precautions. Our Mom isn't in the picture so I have to figure this out. What do I do? How do I make him understand my feelings? Am I being overdramatic?
+
+TLDR:
+","
+I'm not sure if I'm right to be in the picture, but I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure if I'm wrong. I'm not sure","
+I'm not a gun person, but I'm a gun person. I'm not a gun person who is going to shoot and I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun person who is going to kill. I'm not a gun"
+9,"{'id': 't3_3yr3m1', 'post': ""A girl I dated my freshman year of college called out of the blue and asked if I wanted to spend New Years with her. I said yes, but now I'm worried that she'll be disappointed as soon as she sees how fat I've gotten. I went from 160 to 200 pounds this year. She hasn't seen me in almost three years, so she'll definitely notice the change. We used to have really good sex and that's pretty much the only reason we stuck together for so long. I know by her tone that she's only looking for a hookup, but I'm actually scared that she might just laugh at me and tell me to leave. Should I just cancel?"", 'title': ""My [21 M] ex [25 F] invited me to her apartment tomorrow. I've gained 40 pounds since we dated and I don't want to be embarrassed."", 'subreddit': 'relationships', 'site': None, 'article': None}","[{'text': "" Ex invited me to her apartment for New Years. I gained 40 pounds since we dated. She's only looking for hookups, but I'm scared she'll be disappointed when she sees me completely different."", 'policy': 'sup4_bo128_rm3', 'note': 'ok'}, {'text': "" My college ex invited me to her apartment. I gained 40 pounds since we dated and I'm worried that she'll be disappointed when she sees my body."", 'policy': 'sup4_bo256_rm3', 'note': 'ok'}]",0,M4bdOszgybjO2qg2Dth5I1GOYAvE7V,batch8,valid1,{'confidence': 2},"POST:
+A girl I dated my freshman year of college called out of the blue and asked if I wanted to spend New Years with her. I said yes, but now I'm worried that she'll be disappointed as soon as she sees how fat I've gotten. I went from 160 to 200 pounds this year. She hasn't seen me in almost three years, so she'll definitely notice the change. We used to have really good sex and that's pretty much the only reason we stuck together for so long. I know by her tone that she's only looking for a hookup, but I'm actually scared that she might just laugh at me and tell me to leave. Should I just cancel?
+
+TLDR:
+","
+I'm not sure if I'm going to be able to get a date with her. I'm not sure if I'm going to be able to get a date with her. I'm not sure if I'm going to be able to get a date with her. I'm not sure if I'm going to be able to get a date with her. I'm not sure if I'm going to be able to get a date with her. I'm not sure if I'm going to be able to get a date with her. I'm not sure if I'm going to be able to get a date with her. I","
+I'm not sure if I'm going to be able to get a date with her, but I'm sure she'll be happy to see me.
+
+I'm not sure if I'm going to be able to get a date with her, but I'm sure she'll be happy to see me.
+
+I'm not sure if I'm going to be able to get a date with her, but I'm sure she'll be happy to see me.
+
+I'm not sure if I'm going to be able to get a date with her, but I'm sure she'll be happy to see me.
+"

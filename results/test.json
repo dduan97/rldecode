@@ -1,0 +1,115 @@
+{
+    "avg_score": -0.4,
+    "details": [
+        {
+            "avg_score": 0.0,
+            "scores": [
+                0,
+                0
+            ],
+            "rationales": [
+                "Comparison: Neither summary appropriately captures the key points of the forum post as both are repetitive and irrelevant, therefore neither is useful.",
+                "(flipped) Comparison: Both summaries are repetitive and do not address the main points of the original forum post, making it impossible to prefer one over the other based on their content.\n"
+            ]
+        },
+        {
+            "avg_score": -1.0,
+            "scores": [
+                -1,
+                -1
+            ],
+            "rationales": [
+                "Comparison: Summary B does a much better job of capturing the key events and concerns of the forum post without being excessively repetitive, making it both precise and concise.",
+                "(flipped) Comparison: Summary A better captures the core dilemma and relevant details of the situation involving the user's concern about their girlfriend's behavior at a social event, while Summary B is repetitive and fails to address the significant points of the forum post.\n"
+            ]
+        },
+        {
+            "avg_score": -1.0,
+            "scores": [
+                -1,
+                -1
+            ],
+            "rationales": [
+                "Comparison: Summary B is preferred because it accurately captures the key points of the forum post without any repetition or irrelevant details.",
+                "(flipped) Comparison: Summary A is a coherent and accurate recount of the forum post's key points, whereas Summary B is repetitive and does not provide any meaningful information about the post.\n"
+            ]
+        },
+        {
+            "avg_score": 0.0,
+            "scores": [
+                0,
+                0
+            ],
+            "rationales": [
+                "Comparison: Neither summary is appropriate as they both contain repetitive and irrelevant statements that do not convey any of the important points from the post. ",
+                "(flipped) Comparison: Both summaries are nonsensical and repetitive, providing no valuable information about the forum post, making it impossible to prefer one over the other. "
+            ]
+        },
+        {
+            "avg_score": -0.5,
+            "scores": [
+                0,
+                -1
+            ],
+            "rationales": [
+                "Comparison: Both summaries are nonsensical and do not accurately convey any of the important points from the original post, making neither a suitable summary.",
+                "(flipped) Comparison: Both summaries are incomplete and repetitive, failing to encapsulate the main points of the original post regarding concerns about the girlfriend's drunk texts from a male friend, but Summary A is marginally less repetitive."
+            ]
+        },
+        {
+            "avg_score": -0.5,
+            "scores": [
+                -1,
+                0
+            ],
+            "rationales": [
+                "Comparison: Both summaries repeat fragmented portions of the post and fail to capture its essence; however, Summary B does a slightly better job by providing more complete sentences even though it is still repetitive and incomplete.\n",
+                "(flipped) Comparison: Neither summary accurately captures the important points of the forum post as both are repetitive and fail to provide a concise, relevant overview of the original message.\n"
+            ]
+        },
+        {
+            "avg_score": 0.0,
+            "scores": [
+                0,
+                0
+            ],
+            "rationales": [
+                "Comparison: Both summaries fail to concisely and precisely encapsulate the main points of the post, instead focusing on repetitive phrases that do not convey the author's frustrations or viewpoint about the gaming culture.",
+                "(flipped) Comparison: Both summaries fail to precisely and concisely summarize the main points of the post and are repetitive without providing meaningful insight into the arguments presented."
+            ]
+        },
+        {
+            "avg_score": -1.0,
+            "scores": [
+                -1,
+                -1
+            ],
+            "rationales": [
+                "Comparison: Summary B provides a clear and concise overview of the key points in the forum post, addressing the writer's experiences with long-distance relationships, social anxiety, and desire for advice on overcoming shyness, whereas Summary A is repetitive and doesn't convey any meaningful information.\n",
+                "(flipped) Comparison: Summary A does a better job of summarizing the most important points from the original post, whereas Summary B is a repetitive and irrelevant string of words indicating shyness, and does not provide useful information."
+            ]
+        },
+        {
+            "avg_score": 0.0,
+            "scores": [
+                0,
+                0
+            ],
+            "rationales": [
+                "Comparison: Neither summary is appropriate since both are nonsensical and do not convey any meaningful information about the original forum post.\n",
+                "(flipped) Comparison: Both summaries are essentially gibberish and fail to convey any of the points from the original post, rendering them both ineffective as summaries."
+            ]
+        },
+        {
+            "avg_score": 0.0,
+            "scores": [
+                0,
+                0
+            ],
+            "rationales": [
+                "Comparison: Both summaries are ineffective and repetitive, failing to capture the main points and concerns of the original post.",
+                "(flipped) Comparison: Neither summary effectively captures the main points of the forum post as they both consist of repetitive statements that fail to succinctly summarize the key concerns and context of the original post.\n"
+            ]
+        }
+    ]
+}
