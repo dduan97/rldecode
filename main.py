@@ -17,6 +17,8 @@ def parse_args():
                         choices=['eval'], help='Mode to run')
     parser.add_argument('--quantize', type=bool,
                         help='Whether to quantize the model')
+    parser.add_argument('--sampling_strategy', type=str, choices=['greedy', 'temperature_policy'],
+                        help='Sampling strategy.')
 
     # EVAL FLAGS
     parser.add_argument('--eval_task', type=str,
@@ -42,8 +44,9 @@ def get_task(args):
 
 
 def get_eval_run_name(args):
-    return 'eval_{task}:{split}_n:{count}_bs:{bs}_model:{model}'.format(
+    return 'eval_{task}:{split}_{sampling_strategy}_n:{count}_bs:{bs}_model:{model}'.format(
         task=args.eval_task,
+        sampling_strategy=args.sampling_strategy,
         split=args.eval_split,
         count=args.eval_count,
         bs=args.eval_batch_size,
@@ -53,7 +56,7 @@ def get_eval_run_name(args):
 
 def should_run(subdir: str):
     if os.path.exists(subdir):
-        if input('Run already exists. Continue? This will overwrite data [y/n]') == 'y':
+        if input('Run already exists. Continue? This will overwrite data [y/n] ') == 'y':
             return True
         return False
     return True
@@ -70,14 +73,14 @@ def run_eval(args):
     df['formatted_prompt'] = df.apply(task.formatter, axis=1)
     scrape_model = hf_model.HFModel(args.eval_model, quantize=args.quantize)
     df['model_scrape'] = scrape_model.predict(
-        df['formatted_prompt'], batch_size=args.eval_batch_size)
+        df['formatted_prompt'], batch_size=args.eval_batch_size, sampling_strategy=args.sampling_strategy)
 
     judge = gpt_judge.GptJudge('gpt-4o')
     judge_results = judge.judge(
-        df['formatted_prompt'], df['model_a_scrape'], df['summary'])
+        df['formatted_prompt'], df['model_scrape'], df['summary'])
 
     # Save results
-    os.makedirs(subdir)
+    os.makedirs(subdir, exist_ok=True)
 
     df.to_csv(f'{subdir}/scrapes.csv')
     with open(f'{subdir}/rater_results.json', 'w') as f:
