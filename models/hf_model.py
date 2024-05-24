@@ -15,25 +15,51 @@ _PATH_REMAPS = {
 
 class HFModel(model_base.ModelBase):
     def __init__(self, model_name: str, quantize: bool = False):
-        tokenizer_path, model_path = _PATH_REMAPS.get(
-            model_name, (model_name, model_name))
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            tokenizer_path)
-        self.tokenizer.padding_side = 'left'
-        self.tokenizer.pad_token = self.tokenizer.eos_token
+        branch = None
+        path_parts = model_name.split('/')
+        kwargs = {}
+        if len(path_parts) == 3:
+            model_name = '/'.join(path_parts[:-1])
+            branch = path_parts[-1]
+            kwargs['revision'] = branch
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path)
+                model_name, **kwargs)
+
+        # Use config from https://github.com/vwxyzjn/summarize_from_feedback_details/blob/main/summarize_from_feedback_details/sft.py#L300
+        # disable `pad_token_id` and `eos_token_id` because we just want to
+        self.model.generation_config.eos_token_id = None
+        # generate tokens without truncation / padding
+        self.model.generation_config.pad_token_id = None
         if quantize:
             self.model.to(torch.bfloat16)
+        tokenizer_path, model_path = _PATH_REMAPS.get(
+            model_name, (model_name, model_name))
+        # Use config from https://github.com/vwxyzjn/summarize_from_feedback_details/blob/main/summarize_from_feedback_details/sft.py#L300
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            tokenizer_path,
+            padding_side="right",
+            trust_remote_code=True,
+            **kwargs
+        )
+        # we use the padding token manually but do not resize the token embedding of the model
+        self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
     def _get_temperature_policy_warper(self):
         # return logits_warpers.TemperaturePolicyWarper(self.tokenizer.vocab_size, 2048)
         # Not sure why but the pythia model is outputting shape 50304 instead of the vocab size (50254)
         return logits_warpers.TemperaturePolicyWarper(50304, 2048)
 
-    def predict(self, inputs: list[str], *, batch_size: int = 8, max_new_tokens=128, sampling_strategy: str = 'greedy', temperature: float = 0.0, top_p: float = 0.95) -> str:
+    def predict(self, queries, *, max_new_tokens=128, sampling_strategy: str = 'greedy', temperature: float = 0.0, top_p: float = 0.95) -> str:
+        context_length = queries.shape[1]
+        attention_mask = queries != self.tokenizer.pad_token_id
+        input_ids = torch.masked_fill(queries, ~attention_mask, 0)
+
         if sampling_strategy == 'greedy':
-            generate_kwargs = {'do_sample': False}
+            generate_kwargs = {'do_sample': False,
+                               'max_new_tokens': max_new_tokens}
+        elif sampling_strategy == 'pythia-default':
+            generate_kwargs = {'min_new_tokens': 53, 'max_new_tokens': 53, 'do_sample': True, 'temperature': (
+                0.01 + 1e-7), 'top_k': 0.0, 'top_p': 1.0}
         elif sampling_strategy == 'nucleus':
             generate_kwargs = {'temperature': temperature, 'top_p': top_p}
         elif sampling_strategy == 'temperature_policy':
@@ -41,28 +67,15 @@ class HFModel(model_base.ModelBase):
                                'logits_processor': LogitsProcessorList([self._get_temperature_policy_warper()])}
         else:
             raise ValueError('Invalid sampling strategy ' + sampling_strategy)
-        all_decodes = []
-        for batched_inputs in tqdm.tqdm(more_itertools.chunked(inputs, batch_size), desc='predict()'):
-            model_inputs = self.tokenizer(
-                batched_inputs, padding=True, return_tensors='pt')
-            tokens = self.model.generate(
-                **model_inputs, **generate_kwargs, max_new_tokens=max_new_tokens)
-            # Remove the input prefix?
-            tokens = tokens[:, model_inputs.input_ids.shape[1]:]
-            decodes = self.tokenizer.batch_decode(tokens)
-            all_decodes.extend(decodes)
-        return all_decodes
-
-    def decode(self, inputs: list[str], *, batch_size: int = 8, max_new_tokens: int = 128, return_logits: bool = False, return_int_states: bool = False, decode: bool = False):
-        """Decode. Return a dict with keys:
-
-        tokens: list of tensors
-        logits: list of tensors (if `return_logits` is specified)
-        int_states: list of tensors (if `return_int_states` is specified)
-        decoded: list of strings (if `decode` is specified)
-        """
-
-        inputs = self.tokenizer(inputs, return_tensors='pt')
-        tokens = self.model.generate(
-            **inputs, max_new_tokens=1)
-        return self.tokenizer.decode(tokens[0])
+        output = self.model.generate(input_ids=input_ids,
+                                     attention_mask=attention_mask,
+                                     return_dict_in_generate=True,
+                                     **generate_kwargs)
+        generated_responses = torch.cat(
+            (queries, output.sequences[:, context_length:]), dim=1)
+        responses = generated_responses[:, context_length:]
+        decode_responses = self.tokenizer.batch_decode(
+            responses,
+            skip_special_tokens=True,
+        )
+        return decode_responses

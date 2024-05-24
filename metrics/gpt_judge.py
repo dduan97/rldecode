@@ -45,9 +45,17 @@ class GptJudge():
             return 0
         return None
 
+    def _score_to_win_count(self, score: float):
+        if score < 0:
+            return 0
+        elif score > 0:
+            return 1
+        return 0.5
+
     def _judge_once(self, prompt: str, response_a: str, response_b: str, *, num_votes: int = 2) -> dict[str, Any]:
         scores = []
         rationales = []
+        win_counts = []
         for i in range(num_votes):
             flipped = i % 2 == 1
 
@@ -68,8 +76,10 @@ class GptJudge():
                 rationale = '(flipped) ' + rationale
             scores.append(vote_score)
             rationales.append(rationale)
+            win_counts.append(self._score_to_win_count(vote_score))
         return {
             'avg_score': np.mean(scores),
+            'win_rate': np.mean(win_counts),
             'scores': scores,
             'rationales': rationales
         }
@@ -91,7 +101,9 @@ class GptJudge():
 
         # Now generate full stats
         sxs_average = np.mean([r['avg_score'] for r in responses])
+        win_rate = np.mean([r['win_rate'] for r in responses])
         return {
             'avg_score': sxs_average,
+            'win_rate': win_rate,
             'details': responses
         }

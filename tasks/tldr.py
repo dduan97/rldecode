@@ -1,5 +1,6 @@
 import pandas as pd
-from datasets import load_dataset
+from torch.utils.data import DataLoader
+from datasets import load_dataset, Dataset
 
 _PRETRAINED_TEMPLATE = """POST:
 {post}
@@ -7,33 +8,29 @@ _PRETRAINED_TEMPLATE = """POST:
 TLDR:
 """
 
-_INSTRUCTION_TEMPLATE = """You will be given a forum post, and your job is to generate a concise summary of it. Include all of the important details without including any irrelevant information.
-
-FORUM POST:
-{post}
-
-YOUR SUMMARY:
-"""
+_INSTRUCTION_TEMPLATE = """ SUBREDDIT: r/{subreddit}
+TITLE: {title}
+POST: {post}
+TL;DR:"""
 
 
 class Tldr:
-    def __init__(self, subset: str = 'comparisons', split: str = 'validation', *, shuffle=False, seed: int = 509, n: int = -1, mode='pretrained'):
-        # Subset is either 'axis' or 'comparisons'
-        dataset = load_dataset('openai/summarize_from_feedback', subset)[split]
+    def __init__(self, version: str = 'sft', split: str = 'validation', batch_size: int = 8, *, shuffle=False, seed: int = 509, n: int = -1):
+        # Subset is either 'sft' or 'preference'
+        # Use the processed version from https://arxiv.org/pdf/2403.17031, since we're also going to use their trained checkpoints.
+        if version == 'sft':
+            dataset = load_dataset(
+                'vwxyzjn/summarize_from_feedback_tldr_3_filtered_oai_preprocessing_1706381144')[split]
+        elif version == 'preference':
+            dataset = load_dataset(
+                'vwxyzjn/summarize_from_feedback_oai_preprocessing_1706381144')[split]
         if shuffle:
             dataset = dataset.shuffle(seed=seed)
         if n > 0:
             dataset = dataset[:n]
-        self.ds = pd.DataFrame(dataset)
-        self.mode = mode
 
-    def dataset(self) -> pd.DataFrame:
-        return self.ds
-
-    def formatter(self, example: pd.DataFrame) -> str:
-        # Example should be a row from dataset()
-        post = example['info']['post']
-        if self.mode == 'pretrained':
-            return _PRETRAINED_TEMPLATE.format(post=post)
-        elif self.mode == 'instruct':
-            return _INSTRUCTION_TEMPLATE.format(post=post)
+        # dataset = Dataset.from_dict(dataset)
+        dataset = dataset.with_format(
+            "torch", columns=["query_token", "reference_response_token"])
+        self.dataloader = DataLoader(
+            dataset, batch_size=batch_size)
