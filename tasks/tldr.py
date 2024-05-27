@@ -29,8 +29,25 @@ class Tldr:
         if n > 0:
             dataset = dataset[:n]
 
-        # dataset = Dataset.from_dict(dataset)
-        dataset = dataset.with_format(
-            "torch", columns=["query_token", "reference_response_token"])
+        # Kind of hacky but taking [:n] turns this into a dict somehow?
+        if isinstance(dataset, dict):
+            dataset = Dataset.from_dict(dataset)
+
+        if version == 'sft':
+            dataset = dataset.with_format(
+                "torch", columns=["query_token", "reference_response_token"])
+        elif version == 'preference':
+            dataset = dataset.with_format(
+                "torch", columns=[
+                    "query_token",
+                    "chosen_token",
+                    "query_chosen_token",
+                    "query_chosen_token_response_label",
+                    "rejected_token",
+                    "query_rejected_token",
+                    "query_rejected_token_response_label",
+                    "batch",
+                    "split",
+                ],)
         self.dataloader = DataLoader(
             dataset, batch_size=batch_size)

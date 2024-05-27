@@ -3,6 +3,7 @@ import functools
 import numpy as np
 from openai import OpenAI
 from typing import Any
+import tqdm
 
 from . import constants
 
@@ -90,7 +91,7 @@ class GptJudge():
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_idx = {executor.submit(
                 self._judge_once, prompt, response_a, response_b): i for i, (prompt, response_a, response_b) in enumerate(zipped)}
-            for future in concurrent.futures.as_completed(future_to_idx):
+            for future in tqdm.tqdm(concurrent.futures.as_completed(future_to_idx)):
                 idx = future_to_idx[future]
                 try:
                     data = future.result()

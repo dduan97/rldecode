@@ -27,6 +27,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         return dist
         
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
+        del input_ids
         # scores: shape (B, vocab_size)
         # reference: https://github.com/huggingface/transformers/blob/main/src/transformers/generation/logits_process.py#L230
         distribution = self._distribution(scores)
@@ -35,4 +36,6 @@ class TemperaturePolicyWarper(LogitsWarper):
         temps = torch.clip(temps, min=0.001, max=3.0).unsqueeze(-1)
         scores_processed = scores / temps
         return scores_processed
-        
+
+    def parameters(self):
+        return self.net.parameters()
