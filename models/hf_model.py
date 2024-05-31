@@ -91,8 +91,8 @@ class HFModel(model_base.ModelBase):
         )
         return decode_responses
 
-
-    def forward(self, query_responses, labels):
+    def forward(self, query_responses, labels, *, policy_weight: float = 1.0):
+        # DPO forward pass (on two examples)
         attention_mask = query_responses != self.tokenizer.pad_token_id
         input_ids = torch.masked_fill(query_responses, ~attention_mask, 0)
         output = self.model(
@@ -102,16 +102,20 @@ class HFModel(model_base.ModelBase):
         )
         labels = labels[:, 1:].clone()
         logits = output.logits[:, :-1, :]
-        print(logits.shape)
+        # Unquantize
+        logits = logits.to(torch.float)
 
         # Apply temperature policy
+        debug = {}
         if self.temperature_policy is not None:
             # First parameter of temperature policy is not used
             logits_shape = logits.shape
             vocab_size = logits_shape[-1]
             logits = logits.reshape(-1, vocab_size)
-            logits = self.temperature_policy(None, logits)
+            logits, tp_debug = self.temperature_policy(
+                None, logits, return_debug=True, policy_weight=policy_weight)
             logits = logits.reshape(logits_shape)
+            debug = debug | tp_debug
 
         loss_mask = (labels != self.tokenizer.pad_token_id)
         per_token_logps = torch.gather(
@@ -119,10 +123,40 @@ class HFModel(model_base.ModelBase):
         all_logps = (per_token_logps * loss_mask).sum(-1)
         chosen_logps = all_logps[:query_responses.shape[0] // 2]
         rejected_logps = all_logps[query_responses.shape[0] // 2:]
-        return chosen_logps, rejected_logps
+        return chosen_logps, rejected_logps, debug
 
     def parameters(self):
         if self.temperature_policy is not None:
             return self.temperature_policy.parameters()
         return []
 
+    def to(self, device):
+        self.model = self.model.to(device)
+        if self.temperature_policy is not None:
+            self.temperature_policy = self.temperature_policy.to(device)
+        return self
+
+    def get_checkpoint_info(self):
+        if self.temperature_policy is not None:
+            return {'type': 'temperature-policy', 'state_dict': self.temperature_policy.state_dict()}
+        return {}
+
+    def get_grad_norms(self):
+        if self.temperature_policy is not None:
+            return self.temperature_policy.get_grad_norms()
+        return torch.Tensor()
+
+    def get_grads(self):
+        if self.temperature_policy is not None:
+            return self.temperature_policy.get_grads()
+        return torch.Tensor()
+
+    def get_num_learnable_parameters(self):
+        if self.temperature_policy is not None:
+            return self.temperature_policy.get_num_learnable_parameters()
+        return 0
+
+    def get_parameter_norm(self):
+        if self.temperature_policy is not None:
+            return self.temperature_policy.get_parameter_norm()
+        return 0

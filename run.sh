@@ -4,7 +4,10 @@ python main.py \
     --mode train \
     --model_name $model \
     --train_task tldr:preference \
+    --train_count 100 \
     --train_num_epochs 10 \
-    --train_count 1000 \
-    --train_batch_size 50 \
-    --sampling_strategy temperature-policy
+    --train_batch_size 3 \
+    --quantize true \
+    --sampling_strategy temperature-policy \
+    --train_grad_accumulation_steps 1 \
+    --train_total_steps 100
