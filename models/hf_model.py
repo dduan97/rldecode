@@ -53,7 +53,7 @@ class HFModel(model_base.ModelBase):
     def _get_temperature_policy_warper(self):
         # return logits_warpers.TemperaturePolicyWarper(self.tokenizer.vocab_size, 2048)
         # Not sure why but the pythia model is outputting shape 50304 instead of the vocab size (50254)
-        return logits_warpers.TemperaturePolicyWarper(50304, 2048)
+        return logits_warpers.TemperaturePolicyWarper(50304, 1024)
 
     def predict(self, queries, *, max_new_tokens=128, sampling_strategy: str = 'greedy', temperature: float = 0.0, top_p: float = 0.95) -> str:
         context_length = queries.shape[1]

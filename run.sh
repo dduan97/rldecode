@@ -5,9 +5,9 @@ python main.py \
     --model_name $model \
     --train_task tldr:preference \
     --train_count 100 \
-    --train_num_epochs 10 \
+    --train_num_epochs 100 \
     --train_batch_size 3 \
     --quantize true \
     --sampling_strategy temperature-policy \
-    --train_grad_accumulation_steps 1 \
-    --train_total_steps 100
+    --train_grad_accumulation_steps 6 \
+    --train_total_steps 1000

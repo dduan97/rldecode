@@ -167,9 +167,9 @@ def evaluate_model(model, dataloader, sampling_strategy, judge, output_dir):
     return df, judge_results
 
 def _policy_weight(step, max_steps):
-    # val = math.tanh((6 * step / max_steps) - 3) + 1
-    # return min(val, 1)
-    return min(1, step / max_steps)
+    val = math.tanh((6 * step / max_steps) - 3) + 1
+    return min(val, 1)
+    # return min(1, step / max_steps)
     
 
 
@@ -186,7 +186,7 @@ def train_model(
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     ref_model = copy.deepcopy(model)
-    optimizer = torch.optim.Adam(model.parameters(), weight_decay=0.01)
+    optimizer = torch.optim.AdamW(model.parameters())
     global_step = 0
     for epoch in tqdm(range(num_train_epochs)):
         for data in tqdm(dataloader):
@@ -224,7 +224,8 @@ def train_model(
                 'scores': wandb.Histogram(debug['scores'].cpu().detach()),
                 'policy_weight': policy_weight,
                 'num_learnable_params': model.get_num_learnable_parameters(),
-                'parameter_norm': model.get_parameter_norm()
+                'parameter_norm': model.get_parameter_norm(),
+                'processed_scores': wandb.Histogram(debug['processed_scores'].cpu().detach())
             }
             # grads = model.get_grads().cpu().detach()
             # if grads is not None and grads.numel():

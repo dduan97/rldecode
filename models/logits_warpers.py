@@ -14,8 +14,9 @@ class TemperaturePolicyWarper(LogitsWarper):
             nn.BatchNorm1d(hidden_size),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, 1)
-        )  # Outputs a temperature deterministically
+            nn.BatchNorm1d(hidden_size),
+            nn.Linear(hidden_size, 199)
+        )  # Classification over 200 temperature choices (increments of 0.01 from 0.01 to 2)
         self.optimizer = torch.optim.Adam(self.net.parameters())
 
     def _distribution(self, scores: torch.FloatTensor) -> torch.distributions.Distribution:
@@ -39,15 +40,22 @@ class TemperaturePolicyWarper(LogitsWarper):
         # temps = distribution.sample() # should be shape (B,)
         debug = {}
         temps = self.net(scores)
-        temps = 2 * F.sigmoid(temps)
+        temps = F.softmax(temps, dim=-1) # shape (B, 199)
+
+        temps = torch.max(temps, dim=-1, keepdim=True)[0]
+        temps /= 100
+        # If we keep the line below, training is a bit more stable but doesn't learn
+        # temps = 2 * F.sigmoid(temps)
         debug['scores'] = scores
         debug['raw_temp_net_output'] = temps
 
         # Weigh the policy more over time
         final_temps = (1 - policy_weight) * \
             torch.ones_like(temps) + (policy_weight * temps)
+        final_temps = torch.clamp(final_temps, min=1e-3, max=2)
         debug['final_temps'] = final_temps
         scores_processed = scores / final_temps
+        debug['processed_scores'] = scores_processed
         if return_debug:
             return scores_processed, debug
         return scores_processed
@@ -80,4 +88,6 @@ class TemperaturePolicyWarper(LogitsWarper):
     def get_parameter_norm(self):
         parameters = [p.reshape(-1) for p in self.net.parameters(
         ) if p.grad is not None and p.requires_grad]
+        if not parameters:
+            return torch.Tensor()
         return torch.linalg.vector_norm(torch.cat(parameters, dim=0).reshape(-1), ord=2)
