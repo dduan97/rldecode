@@ -80,6 +80,11 @@ class TemperaturePolicyWarper(LogitsWarper):
     def state_dict(self):
         return self.net.state_dict()
 
+    def load_state_dict(self, state_dict: dict):
+        print('Loading state dict for temperature policy')
+        self.net.load_state_dict(state_dict)
+        return self
+
     def get_grad_norms(self):
         # distribution of norm of grads over each parameter
         parameters = [p for p in self.net.parameters(
@@ -101,3 +106,6 @@ class TemperaturePolicyWarper(LogitsWarper):
         if not parameters:
             return torch.Tensor()
         return torch.linalg.vector_norm(torch.cat(parameters, dim=0).reshape(-1), ord=2)
+
+    def eval(self):
+        self.net.eval()

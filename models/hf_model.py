@@ -18,10 +18,6 @@ class HFModel(model_base.ModelBase):
     def __init__(self, model_name: str, quantize: bool = False, temperature_policy_kwargs: dict[str, Any] | None = None):
         branch = None
         # If reading a local temperature policy checkpoint, format is <HF_SPEC>:::TP:local_path
-        # HF part of the model is <user>/<model_name>/version
-        if ':::' in model_name:
-            hf_model_name, tp_path_spec = model_name.split(':::')[0]
-
         # load the HF model
         path_parts = model_name.split('/')
         kwargs = {}
@@ -54,12 +50,15 @@ class HFModel(model_base.ModelBase):
         self.temperature_policy = None
         if temperature_policy_kwargs is not None:
             # TODO: pipe through the flags that we want
-            self.temperature_policy = self._get_temperature_policy_warper()
+            self.temperature_policy = self._get_temperature_policy_warper(**temperature_policy_kwargs)
 
-    def _get_temperature_policy_warper(self):
+    def _get_temperature_policy_warper(self, state_dict: dict = None):
         # return logits_warpers.TemperaturePolicyWarper(self.tokenizer.vocab_size, 2048)
         # Not sure why but the pythia model is outputting shape 50304 instead of the vocab size (50254)
-        return logits_warpers.TemperaturePolicyWarper(256, 128)
+        temperature_policy = logits_warpers.TemperaturePolicyWarper(256, 128)
+        if state_dict is not None:
+            temperature_policy = temperature_policy.load_state_dict(state_dict)
+        return temperature_policy
 
     def predict(self, queries, *, max_new_tokens=128, sampling_strategy: str = 'greedy', temperature: float = 0.0, top_p: float = 0.95) -> str:
         context_length = queries.shape[1]
@@ -166,3 +165,7 @@ class HFModel(model_base.ModelBase):
         if self.temperature_policy is not None:
             return self.temperature_policy.get_parameter_norm()
         return 0
+
+    def eval(self):
+        if self.temperature_policy is not None:
+            self.temperature_policy.eval()

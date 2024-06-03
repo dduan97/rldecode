@@ -43,9 +43,10 @@ def parse_args():
     )
     parser.add_argument("--out_dir", type=str,
                         help="Output dir", default="results")
-    parser.add_argument("--model_name", type=str, help="HF model to eval. Suffix with local path to temperature policy.")
+    parser.add_argument("--model_name", type=str, help="HF model to eval.")
     parser.add_argument("--seed", type=int, default=510,
                         help="Random seed to set")
+    parser.add_argument("--tp_state_path", type=str, help="path to state dict to load TP checkpoint.")
 
     # TRAIN FLAGS
     parser.add_argument("--train_task", type=str,
@@ -94,7 +95,23 @@ def get_task(task: str, split: str, batch_size: int, count: int, shuffle: bool):
 
 
 def get_run_name(args):
-    return "{task}_{sampling_strategy}_n:{count}_bs:{train_bs},{eval_bs}_model:{model}_total_steps:{total_steps}".format(
+    if args.mode == 'eval':
+        return get_eval_name(args)
+    elif args.mode == 'train':
+        return get_train_name(args)
+
+def get_eval_name(args):
+    return "EVAL:{task}_{sampling_strategy}_n:{count}_bs:{eval_bs}_model:{model}_total_steps:{total_steps}".format(
+        task=args.eval_task,
+        sampling_strategy=args.sampling_strategy,
+        count=args.eval_count,
+        eval_bs=args.eval_batch_size,
+        model=args.model_name,
+    )
+
+
+def get_train_name(args):
+    return "TRAIN:{task}_{sampling_strategy}_n:{count}_bs:{train_bs},{eval_bs}_model:{model}_total_steps:{total_steps}".format(
         task=args.train_task,
         sampling_strategy=args.sampling_strategy,
         count=args.train_count,
@@ -133,7 +150,7 @@ def evaluate_model(model, dataloader, sampling_strategy, judge, output_dir):
     all_decode_reference_responses = []
     for _, data in tqdm(enumerate(dataloader)):
         with torch.no_grad():
-            queries = data["query_token"]
+            queries = data["query_token"].to(_DEVICE)
             reference_responses = data["reference_response_token"]
             # context_length = queries.shape[1]
             decode_responses = model.predict(
@@ -258,8 +275,8 @@ def train_model(
                     'model_state_dict': model.get_checkpoint_info(),
                     'optimizer_state_dict': optimizer.state_dict(),
                 }, f'{output_dir}/model_epoch{epoch}_step{global_step}.pt')
-
             global_step += 1
+
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.get_checkpoint_info(),
@@ -285,7 +302,11 @@ def eval_main(args):
         shuffle=args.shuffle
     )
     dataloader = task.dataloader
-    scrape_model = hf_model.HFModel(args.model_name, quantize=args.quantize)
+    tp_kwargs = {}
+    if args.tp_state_path:
+        state_dict = torch.load(args.tp_state_path)
+        tp_kwargs['state_dict'] = state_dict['model_state_dict']['state_dict']
+    scrape_model = hf_model.HFModel(args.model_name, quantize=args.quantize, temperature_policy_kwargs=tp_kwargs)
 
     scrape_model.to(_DEVICE)
 
@@ -311,8 +332,12 @@ def train_main(args):
         args.train_task, "train", args.train_batch_size, args.train_count, shuffle=args.shuffle
     )
     dataloader = train_task.dataloader
+    tp_kwargs = {}
+    if args.tp_state_path:
+        state_dict = torch.load(args.tp_state_path)
+        tp_kwargs['state_dict'] = state_dict['model_state_dict']['state_dict']
     model = hf_model.HFModel(
-        args.model_name, quantize=args.quantize, temperature_policy_kwargs={}
+        args.model_name, quantize=args.quantize, temperature_policy_kwargs=tp_kwargs
     )
     model.to(_DEVICE)
 
