@@ -43,7 +43,7 @@ def parse_args():
     )
     parser.add_argument("--out_dir", type=str,
                         help="Output dir", default="results")
-    parser.add_argument("--model_name", type=str, help="HF model to eval.")
+    parser.add_argument("--model_name", type=str, help="HF model to eval. Suffix with local path to temperature policy.")
     parser.add_argument("--seed", type=int, default=510,
                         help="Random seed to set")
 
@@ -75,15 +75,19 @@ def parse_args():
     parser.add_argument("--eval_batch_size", type=int,
                         help="Batch size for evaluation")
 
+    # Data flags
+    parser.add_argument("--shuffle", type=bool,
+                        help="Whether to shuffle the dataloader")
+
     args = parser.parse_args()
     return args
 
 
-def get_task(task: str, split: str, batch_size: int, count: int):
+def get_task(task: str, split: str, batch_size: int, count: int, shuffle: bool):
     if task.startswith("tldr"):
         version = task.split(":")[1]
         return tldr.Tldr(
-            version=version, split=split, batch_size=batch_size, shuffle=False, n=count
+            version=version, split=split, batch_size=batch_size, shuffle=shuffle, n=count
         )
     else:
         raise ValueError()
@@ -166,11 +170,12 @@ def evaluate_model(model, dataloader, sampling_strategy, judge, output_dir):
 
     return df, judge_results
 
+
 def _policy_weight(step, max_steps):
-    val = math.tanh((6 * step / max_steps) - 3) + 1
-    return min(val, 1)
+    # val = math.tanh((6 * step / max_steps) - 3) + 1
+    # return min(val, 1)
     # return min(1, step / max_steps)
-    
+    return 1
 
 
 def train_model(
@@ -225,7 +230,11 @@ def train_model(
                 'policy_weight': policy_weight,
                 'num_learnable_params': model.get_num_learnable_parameters(),
                 'parameter_norm': model.get_parameter_norm(),
-                'processed_scores': wandb.Histogram(debug['processed_scores'].cpu().detach())
+                'processed_scores': wandb.Histogram(debug['processed_scores'].cpu().detach()),
+                'ref_chosen_logps': wandb.Histogram(ref_chosen_logps.cpu().detach()),
+                'ref_rejected_logps': wandb.Histogram(ref_rejected_logps.cpu().detach()),
+                'chosen_logps': wandb.Histogram(chosen_logps.cpu().detach()),
+                'rejected_logps': wandb.Histogram(rejected_logps.cpu().detach()),
             }
             # grads = model.get_grads().cpu().detach()
             # if grads is not None and grads.numel():
@@ -251,6 +260,11 @@ def train_model(
                 }, f'{output_dir}/model_epoch{epoch}_step{global_step}.pt')
 
             global_step += 1
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.get_checkpoint_info(),
+        'optimizer_state_dict': optimizer.state_dict(),
+    }, f'{output_dir}/model_final.pt')
 
 
 def eval_main(args):
@@ -268,6 +282,7 @@ def eval_main(args):
         split=args.eval_split,
         batch_size=args.eval_batch_size,
         count=args.eval_count,
+        shuffle=args.shuffle
     )
     dataloader = task.dataloader
     scrape_model = hf_model.HFModel(args.model_name, quantize=args.quantize)
@@ -293,7 +308,7 @@ def train_main(args):
     os.makedirs(subdir, exist_ok=True)
 
     train_task = get_task(
-        args.train_task, "train", args.train_batch_size, args.train_count
+        args.train_task, "train", args.train_batch_size, args.train_count, shuffle=args.shuffle
     )
     dataloader = train_task.dataloader
     model = hf_model.HFModel(

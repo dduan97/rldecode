@@ -8,6 +8,9 @@ import wandb
 
 class TemperaturePolicyWarper(LogitsWarper):
     def __init__(self, vocab_size: int, hidden_size: int):
+        # Idea: instead of taking the model logits as sparse inputs, maybe we take the topK logits, feed them through
+        # some embedding layer, and then take a weighted average of them?
+        self.k = vocab_size
         self.net = nn.Sequential(
             nn.Linear(vocab_size, hidden_size),
             nn.ReLU(),
@@ -15,7 +18,7 @@ class TemperaturePolicyWarper(LogitsWarper):
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.BatchNorm1d(hidden_size),
-            nn.Linear(hidden_size, 199)
+            nn.Linear(hidden_size, 1)
         )  # Classification over 200 temperature choices (increments of 0.01 from 0.01 to 2)
         self.optimizer = torch.optim.Adam(self.net.parameters())
 
@@ -39,14 +42,21 @@ class TemperaturePolicyWarper(LogitsWarper):
         # distribution = self._distribution(scores)
         # temps = distribution.sample() # should be shape (B,)
         debug = {}
-        temps = self.net(scores)
-        temps = F.softmax(temps, dim=-1) # shape (B, 199)
+        topk_scores = torch.topk(scores, self.k, dim=-1)[0]
+        sorted_topk_scores = torch.sort(topk_scores, descending=True, dim=-1)[0]
+        # temps = self.net(scores)
 
-        temps = torch.max(temps, dim=-1, keepdim=True)[0]
-        temps /= 100
+        # Below: model outputs 100-dim logits, one for each bucket from 0 to 1
+        # temps = self.net(sorted_topk_scores)
+        # temps = F.softmax(temps, dim=-1) # shape (B, 99)
+        # temps = torch.max(temps, dim=-1, keepdim=True)[0] # indices of max pred
+        # temps = (temps + 0.01) / 100 # Rescale to (0.01, 1)
+
         # If we keep the line below, training is a bit more stable but doesn't learn
-        # temps = 2 * F.sigmoid(temps)
-        debug['scores'] = scores
+        temps = self.net(sorted_topk_scores)
+        temps = F.sigmoid(temps)
+        # debug['scores'] = scores
+        debug['scores'] = sorted_topk_scores
         debug['raw_temp_net_output'] = temps
 
         # Weigh the policy more over time
