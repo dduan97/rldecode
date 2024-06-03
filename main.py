@@ -241,6 +241,7 @@ def train_model(
             # Compute implcit DPO reward/accuracy
             reward_preferred = 0.05 * (chosen_logps - ref_chosen_logps)
             reward_rejected = 0.05 * (rejected_logps - ref_rejected_logps)
+
             accuracy = (reward_preferred > reward_rejected).float().mean()
             # also known as h_{\pi_\theta}^{y_w,y_l}
             logits = pi_logratios - ref_logratios
