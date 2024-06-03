@@ -207,8 +207,11 @@ def train_model(
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
-    ref_model = copy.deepcopy(model)
-    optimizer = torch.optim.AdamW(model.parameters())
+
+    # TODO: redesign HFModel to take in a pretrained LLM and an optional TP
+    model.model = model.model.eval()
+
+    optimizer = torch.optim.Adam(model.parameters())
     global_step = 0
     for epoch in tqdm(range(num_train_epochs)):
         for data in tqdm(dataloader):
@@ -227,13 +230,18 @@ def train_model(
             query_responses = query_responses.to(_DEVICE)
             labels = labels.to(_DEVICE)
             with torch.no_grad():
-                ref_chosen_logps, ref_rejected_logps, _ = ref_model.forward(
-                    query_responses, labels
+                ref_chosen_logps, ref_rejected_logps, _ = model.forward(
+                    query_responses, labels, skip_temperature_policy=True
                 )
             chosen_logps, rejected_logps, debug = model.forward(
                 query_responses, labels, policy_weight=policy_weight)
             pi_logratios = chosen_logps - rejected_logps
             ref_logratios = ref_chosen_logps - ref_rejected_logps
+
+            # Compute implcit DPO reward/accuracy
+            reward_preferred = 0.05 * (chosen_logps - ref_chosen_logps)
+            reward_rejected = 0.05 * (rejected_logps - ref_rejected_logps)
+            accuracy = (reward_preferred > reward_rejected).float().mean()
             # also known as h_{\pi_\theta}^{y_w,y_l}
             logits = pi_logratios - ref_logratios
             loss = -F.logsigmoid(0.05 * logits)
@@ -252,6 +260,7 @@ def train_model(
                 'ref_rejected_logps': wandb.Histogram(ref_rejected_logps.cpu().detach()),
                 'chosen_logps': wandb.Histogram(chosen_logps.cpu().detach()),
                 'rejected_logps': wandb.Histogram(rejected_logps.cpu().detach()),
+                'train_accuracy': accuracy,
             }
             # grads = model.get_grads().cpu().detach()
             # if grads is not None and grads.numel():
@@ -269,7 +278,7 @@ def train_model(
                 #     param.grad /= grad_accumulation_steps
 
             if (global_step + 1) % save_every == 0:
-                # Save a checkpoint for the temperature policy every epoch
+                # Save a checkpoint for the temperature policy 
                 torch.save({
                     'epoch': epoch,
                     'model_state_dict': model.get_checkpoint_info(),
@@ -336,6 +345,10 @@ def train_main(args):
     if args.tp_state_path:
         state_dict = torch.load(args.tp_state_path)
         tp_kwargs['state_dict'] = state_dict['model_state_dict']['state_dict']
+    tp_kwargs['input_dim'] = 512
+    tp_kwargs['hidden_dim'] = 256
+    tp_kwargs['num_hidden_layers'] = 2
+
     model = hf_model.HFModel(
         args.model_name, quantize=args.quantize, temperature_policy_kwargs=tp_kwargs
     )

@@ -5,10 +5,11 @@ python main.py \
     --model_name $model \
     --train_task tldr:preference \
     --train_num_epochs 100 \
-    --train_count 100 \
-    --train_batch_size 3 \
+    --train_count 500 \
+    --train_save_every 250 \
+    --train_batch_size 4 \
     --quantize true \
     --sampling_strategy temperature-policy \
-    --train_grad_accumulation_steps 6 \
-    --shuffle true
+    --train_grad_accumulation_steps 8 \
+    --shuffle true \
     # --train_total_steps 1000

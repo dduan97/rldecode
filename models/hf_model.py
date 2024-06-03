@@ -47,15 +47,19 @@ class HFModel(model_base.ModelBase):
         )
         # we use the padding token manually but do not resize the token embedding of the model
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
+
+        self.temperature_policy_kwargs = temperature_policy_kwargs
         self.temperature_policy = None
         if temperature_policy_kwargs is not None:
             # TODO: pipe through the flags that we want
-            self.temperature_policy = self._get_temperature_policy_warper(**temperature_policy_kwargs)
+            self.temperature_policy = self._get_temperature_policy_warper(
+                **temperature_policy_kwargs)
 
-    def _get_temperature_policy_warper(self, state_dict: dict = None):
+    def _get_temperature_policy_warper(self, input_dim: int = 256, hidden_dim: int = 128, num_hidden_layers: int = 1, state_dict: dict = None):
         # return logits_warpers.TemperaturePolicyWarper(self.tokenizer.vocab_size, 2048)
         # Not sure why but the pythia model is outputting shape 50304 instead of the vocab size (50254)
-        temperature_policy = logits_warpers.TemperaturePolicyWarper(256, 128)
+        temperature_policy = logits_warpers.TemperaturePolicyWarper(
+            input_dim=input_dim, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers)
         if state_dict is not None:
             temperature_policy = temperature_policy.load_state_dict(state_dict)
         return temperature_policy
@@ -96,7 +100,7 @@ class HFModel(model_base.ModelBase):
         )
         return decode_responses
 
-    def forward(self, query_responses, labels, *, policy_weight: float = 1.0):
+    def forward(self, query_responses, labels, *, policy_weight: float = 1.0, skip_temperature_policy: bool = False):
         # DPO forward pass (on two examples)
         attention_mask = query_responses != self.tokenizer.pad_token_id
         input_ids = torch.masked_fill(query_responses, ~attention_mask, 0)
@@ -112,7 +116,7 @@ class HFModel(model_base.ModelBase):
 
         # Apply temperature policy
         debug = {}
-        if self.temperature_policy is not None:
+        if self.temperature_policy is not None and not skip_temperature_policy:
             # First parameter of temperature policy is not used
             logits_shape = logits.shape
             vocab_size = logits_shape[-1]
@@ -143,7 +147,7 @@ class HFModel(model_base.ModelBase):
 
     def get_checkpoint_info(self):
         if self.temperature_policy is not None:
-            return {'type': 'temperature-policy', 'state_dict': self.temperature_policy.state_dict()}
+            return {'type': 'temperature-policy', 'state_dict': self.temperature_policy.state_dict(), 'tp_kwargs': self.temperature_policy_kwargs}
         return {}
 
     def get_grad_norms(self):

@@ -7,19 +7,29 @@ import wandb
 
 
 class TemperaturePolicyWarper(LogitsWarper):
-    def __init__(self, vocab_size: int, hidden_size: int):
+    def __init__(self, input_dim: int, hidden_dim: int, num_hidden_layers: int):
         # Idea: instead of taking the model logits as sparse inputs, maybe we take the topK logits, feed them through
         # some embedding layer, and then take a weighted average of them?
-        self.k = vocab_size
-        self.net = nn.Sequential(
-            nn.Linear(vocab_size, hidden_size),
+        self.k = input_dim
+        layers = []
+
+        # Input layer
+        layers.extend([
+            nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
-            nn.BatchNorm1d(hidden_size),
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.BatchNorm1d(hidden_size),
-            nn.Linear(hidden_size, 1)
-        )  # Classification over 200 temperature choices (increments of 0.01 from 0.01 to 2)
+            nn.BatchNorm1d(hidden_dim),
+        ])
+
+        for _ in range(num_hidden_layers):
+            layers.extend([
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.ReLU(),
+                nn.BatchNorm1d(hidden_dim),
+            ])
+        layers.append(
+            nn.Linear(hidden_dim, 1)
+        )
+        self.net = nn.Sequential(*layers)
         self.optimizer = torch.optim.Adam(self.net.parameters())
 
     def _distribution(self, scores: torch.FloatTensor) -> torch.distributions.Distribution:
@@ -43,7 +53,8 @@ class TemperaturePolicyWarper(LogitsWarper):
         # temps = distribution.sample() # should be shape (B,)
         debug = {}
         topk_scores = torch.topk(scores, self.k, dim=-1)[0]
-        sorted_topk_scores = torch.sort(topk_scores, descending=True, dim=-1)[0]
+        sorted_topk_scores = torch.sort(
+            topk_scores, descending=True, dim=-1)[0]
         # temps = self.net(scores)
 
         # Below: model outputs 100-dim logits, one for each bucket from 0 to 1
