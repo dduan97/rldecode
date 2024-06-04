@@ -109,17 +109,18 @@ def get_run_name(args):
 
 
 def get_eval_name(args):
-    return "EVAL:{task}_{sampling_strategy}_n:{count}_bs:{eval_bs}_model:{model}_total_steps:{total_steps}".format(
+    return "EVAL:{task}_{sampling_strategy}_n:{count}_bs:{eval_bs}_model:{model}_total_steps:{total_steps}_seed:{seed}".format(
         task=args.eval_task,
         sampling_strategy=args.sampling_strategy,
         count=args.eval_count,
         eval_bs=args.eval_batch_size,
         model=args.model_name,
+        seed=args.seed
     )
 
 
 def get_train_name(args):
-    return "TRAIN:{task}_{sampling_strategy}_n:{count}_bs:{train_bs}_model:{model}_tpspecs:{input_dim},{hidden_dim},{num_hidden_layers}".format(
+    return "TRAIN:{task}_{sampling_strategy}_n:{count}_valn:{val_count}_bs:{train_bs}_model:{model}_tpspecs:{input_dim},{hidden_dim},{num_hidden_layers}_seed:{seed}".format(
         task=args.train_task,
         sampling_strategy=args.sampling_strategy,
         count=args.train_count,
@@ -129,6 +130,8 @@ def get_train_name(args):
         input_dim=args.tp_input_dim,
         hidden_dim=args.tp_hidden_dim,
         num_hidden_layers=args.tp_num_hidden_layers,
+        val_count=args.eval_count,
+        seed=args.seed,
     )
 
 
@@ -195,12 +198,12 @@ def run_validation_metrics(model, dataloader, wandb_run, global_step: int):
             loss = torch.mean(loss)
 
             all_validation_losses.append(loss.cpu().detach())
-            all_validation_final_temps.append(debug['final_temps'].cpu().detach())
+            all_validation_final_temps.append(debug['temps'].cpu().detach())
             all_validation_processed_scores.append(debug['processed_scores'].cpu().detach())
             all_validation_accs.append(accuracy.cpu().detach())
     log_data = {
         'validation/loss': np.mean(all_validation_losses),
-        'validation/final_temps': wandb.Histogram(torch.stack(all_validation_losses)),
+        'validation/temps': wandb.Histogram(torch.stack(all_validation_final_temps)),
         'validation/processed_scores': wandb.Histogram(torch.stack(all_validation_processed_scores)),
         'validation/accuracy': np.mean(all_validation_accs),
     }
@@ -266,10 +269,6 @@ def train_model(
         raise ValueError()
 
     # Use the initial model as the reference model
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
 
     # TODO: redesign HFModel to take in a pretrained LLM and an optional TP
     model.model = model.model.eval()
@@ -311,9 +310,12 @@ def train_model(
             loss = -F.logsigmoid(0.05 * logits)
             loss = torch.mean(loss)
             loss.backward()
+            topk_scores = debug['scores'].cpu().detach()
+            # topk_scores = torch.softmax(topk_scores, dim=-1)
+            min_topk_scores = topk_scores[:, -1]
+            max_topk_scores = topk_scores[:, 0]
             log_data = {
                 'loss': loss,
-                'final_temps': wandb.Histogram(debug['final_temps'].cpu().detach()),
                 'raw_temp_net_output': wandb.Histogram(debug['raw_temp_net_output'].cpu().detach()),
                 'scores': wandb.Histogram(debug['scores'].cpu().detach()),
                 'policy_weight': policy_weight,
@@ -325,6 +327,8 @@ def train_model(
                 'chosen_logps': wandb.Histogram(chosen_logps.cpu().detach()),
                 'rejected_logps': wandb.Histogram(rejected_logps.cpu().detach()),
                 'train_accuracy': accuracy,
+                'min_topk_score': wandb.Histogram(min_topk_scores),
+                'max_topk_scores': wandb.Histogram(max_topk_scores),
             }
             # grads = model.get_grads().cpu().detach()
             # if grads is not None and grads.numel():
@@ -350,9 +354,9 @@ def train_model(
                 }, f'{output_dir}/model_epoch{epoch}_step{global_step}.pt')
 
                 # Also run validation
-                if validation_dataloader:
-                    run_validation_metrics(
-                        model, validation_dataloader, wandb_run=wandb_run, global_step=global_step)
+                # if validation_dataloader:
+                #     run_validation_metrics(
+                #         model, validation_dataloader, wandb_run=wandb_run, global_step=global_step)
             global_step += 1
 
     torch.save({
@@ -363,6 +367,11 @@ def train_model(
 
 
 def eval_main(args):
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.backends.cudnn.deterministic = True
+
     run_name = get_run_name(args)
     wandb_run = init_wandb(args, run_name)
     subdir = os.path.join(args.out_dir, run_name)
@@ -398,6 +407,11 @@ def eval_main(args):
 
 
 def train_main(args):
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.backends.cudnn.deterministic = True
+
     run_name = get_run_name(args)
     subdir = os.path.join(args.out_dir, run_name)
     if not should_run(subdir):
@@ -420,9 +434,9 @@ def train_main(args):
     if args.tp_state_path:
         state_dict = torch.load(args.tp_state_path)
         tp_kwargs['state_dict'] = state_dict['model_state_dict']['state_dict']
-    tp_kwargs['input_dim'] = 512
-    tp_kwargs['hidden_dim'] = 256
-    tp_kwargs['num_hidden_layers'] = 4
+    tp_kwargs['input_dim'] = args.tp_input_dim
+    tp_kwargs['hidden_dim'] = args.tp_hidden_dim
+    tp_kwargs['num_hidden_layers'] = args.tp_num_hidden_layers
 
     model = hf_model.HFModel(
         args.model_name, quantize=args.quantize, temperature_policy_kwargs=tp_kwargs

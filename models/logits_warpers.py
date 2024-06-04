@@ -55,6 +55,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         topk_scores = torch.topk(scores, self.k, dim=-1)[0]
         sorted_topk_scores = torch.sort(
             topk_scores, descending=True, dim=-1)[0]
+        sorted_topk_scores = F.softmax(topk_scores, dim=-1)
         # temps = self.net(scores)
 
         # Below: model outputs 100-dim logits, one for each bucket from 0 to 1
@@ -68,14 +69,8 @@ class TemperaturePolicyWarper(LogitsWarper):
         temps = F.sigmoid(temps)
         # debug['scores'] = scores
         debug['scores'] = sorted_topk_scores
-        debug['raw_temp_net_output'] = temps
-
-        # Weigh the policy more over time
-        final_temps = (1 - policy_weight) * \
-            torch.ones_like(temps) + (policy_weight * temps)
-        final_temps = torch.clamp(final_temps, min=1e-3, max=2)
-        debug['final_temps'] = final_temps
-        scores_processed = scores / final_temps
+        debug['raw_temp_net_output'] = temps 
+        scores_processed = scores / temps 
         debug['processed_scores'] = scores_processed
         if return_debug:
             return scores_processed, debug

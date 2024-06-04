@@ -5,16 +5,17 @@ python main.py \
     --model_name $model \
     --train_task tldr:preference \
     --train_num_epochs 100 \
-    --train_count 20 \
-    --train_save_every 5 \
+    --train_count 1000 \
+    --train_save_every 200 \
     --train_batch_size 4 \
     --train_grad_accumulation_steps 1 \
     --quantize true \
     --sampling_strategy temperature-policy \
     --shuffle true \
-    --eval_count 20 \
-    --eval_batch_size 4 \
-    --tp_input_dim 256 \
-    --tp_hidden_dim 128 \
+    --eval_count 500 \
+    --eval_batch_size 1 \
+    --tp_input_dim 64 \
+    --tp_hidden_dim 32  \
     --tp_num_hidden_layers 4 \
+    --seed 44413
     # --train_total_steps 1000
