@@ -7,7 +7,8 @@ python main.py \
     --train_num_epochs 100 \
     --train_save_every 2000 \
     --train_batch_size 3 \
-    --train_grad_accumulation_steps 1 \
+    --train_count 10000 \
+    --train_grad_accumulation_steps 4 \
     --quantize true \
     --sampling_strategy temperature-policy \
     --shuffle true \
