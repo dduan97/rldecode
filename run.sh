@@ -5,9 +5,8 @@ python main.py \
     --model_name $model \
     --train_task tldr:preference \
     --train_num_epochs 100 \
-    --train_count 1000 \
-    --train_save_every 200 \
-    --train_batch_size 4 \
+    --train_save_every 2000 \
+    --train_batch_size 3 \
     --train_grad_accumulation_steps 1 \
     --quantize true \
     --sampling_strategy temperature-policy \
@@ -15,7 +14,8 @@ python main.py \
     --eval_count 500 \
     --eval_batch_size 1 \
     --tp_input_dim 64 \
-    --tp_hidden_dim 32  \
+    --tp_hidden_dim 512 \
     --tp_num_hidden_layers 4 \
-    --seed 44413
+    --seed 44413 \
+    --tp_enable_next_token_embedding true
     # --train_total_steps 1000

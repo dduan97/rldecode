@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument(
         "--sampling_strategy",
         type=str,
-        choices=["greedy", "temperature-policy", "pythia-sft", "pythia-ppo"],
+        # choices=["greedy", "temperature-policy", "pythia-sft", "pythia-ppo"],
         default="pythia-ppo",
         help="Sampling strategy.",
     )
@@ -65,12 +65,15 @@ def parse_args():
                         help="Total train steps to use for rampup calculations (policy weight)")
     parser.add_argument("--train_grad_accumulation_steps", type=int, default=10,
                         help="Gradient accumulation steps")
+
     parser.add_argument("--tp_input_dim", type=int, default=512,
                         help="input dim to temperature policy")
     parser.add_argument("--tp_hidden_dim", type=int, default=256,
                         help="temperature policy hidden dim")
     parser.add_argument("--tp_num_hidden_layers", type=int, default=1,
                         help="temperature policy num hidden layers")
+    parser.add_argument("--tp_enable_next_token_embedding", type=bool, default=False,
+                        help="temperature policy whether to enable next token embedding")
 
     # EVAL FLAGS
     parser.add_argument("--eval_task", type=str,
@@ -109,7 +112,8 @@ def get_run_name(args):
 
 
 def get_eval_name(args):
-    return "EVAL:{task}_{sampling_strategy}_n:{count}_bs:{eval_bs}_model:{model}_total_steps:{total_steps}_seed:{seed}".format(
+    return "EVAL:{task}_{sampling_strategy}_n:{count}_bs:{eval_bs}_model:{model}_ckpt:{ckpt}_seed:{seed}".format(
+        ckpt=args.tp_state_path.split('/')[-1] if args.tp_state_path else 'pt',
         task=args.eval_task,
         sampling_strategy=args.sampling_strategy,
         count=args.eval_count,
@@ -120,7 +124,7 @@ def get_eval_name(args):
 
 
 def get_train_name(args):
-    return "TRAIN:{task}_{sampling_strategy}_n:{count}_valn:{val_count}_bs:{train_bs}_model:{model}_tpspecs:{input_dim},{hidden_dim},{num_hidden_layers}_seed:{seed}".format(
+    return "TRAIN:{task}_{sampling_strategy}_n:{count}_valn:{val_count}_bs:{train_bs}_model:{model}_tpspecs:{input_dim},{hidden_dim},{num_hidden_layers},{next_token_embedding}_seed:{seed}".format(
         task=args.train_task,
         sampling_strategy=args.sampling_strategy,
         count=args.train_count,
@@ -130,6 +134,7 @@ def get_train_name(args):
         input_dim=args.tp_input_dim,
         hidden_dim=args.tp_hidden_dim,
         num_hidden_layers=args.tp_num_hidden_layers,
+        next_token_embedding=args.tp_enable_next_token_embedding,
         val_count=args.eval_count,
         seed=args.seed,
     )
@@ -245,11 +250,14 @@ def evaluate_model(model, dataloader, sampling_strategy, judge, output_dir):
     # Cache the scrapes here
     df.to_csv(f"{output_dir}/scrapes.csv")
 
+    # Write out the temperatures/scores
+    torch.save(model.temperature_policy.temps_and_inputs, f'{output_dir}/temperature_policy_logs.pt')
+
     judge_results = judge.judge(
         df["query"], df["response"], df["reference_response"])
 
     with open(f"{output_dir}/rater_results.json", "w") as f:
-        json.dump(judge_results, f, ensure_ascii=False)
+        json.dump(judge_results, f)
 
     return df, judge_results
 
@@ -390,8 +398,12 @@ def eval_main(args):
     )
     dataloader = task.dataloader
     tp_kwargs = {}
+
+    # Load checkpoint if applicable
     if args.tp_state_path:
         state_dict = torch.load(args.tp_state_path)
+        print(state_dict['model_state_dict'].keys())
+        tp_kwargs = state_dict['model_state_dict']['tp_kwargs']
         tp_kwargs['state_dict'] = state_dict['model_state_dict']['state_dict']
     scrape_model = hf_model.HFModel(
         args.model_name, quantize=args.quantize, temperature_policy_kwargs=tp_kwargs)
@@ -428,7 +440,8 @@ def train_main(args):
     validation_task = get_task(
         args.train_task, "validation", args.eval_batch_size, args.eval_count, shuffle=False
     )
-    validation_dataloader = validation_task.dataloader
+    # validation_dataloader = validation_task.dataloader
+    validation_dataloader = None
 
     tp_kwargs = {}
     if args.tp_state_path:
@@ -438,10 +451,14 @@ def train_main(args):
     tp_kwargs['hidden_dim'] = args.tp_hidden_dim
     tp_kwargs['num_hidden_layers'] = args.tp_num_hidden_layers
 
+    if args.tp_enable_next_token_embedding:
+        tp_kwargs['enable_next_token_embedding'] = True
+
     model = hf_model.HFModel(
         args.model_name, quantize=args.quantize, temperature_policy_kwargs=tp_kwargs
     )
     model.to(_DEVICE)
+
 
     train_model(
         model,

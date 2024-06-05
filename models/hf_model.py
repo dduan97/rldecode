@@ -24,7 +24,6 @@ class HFModel(model_base.ModelBase):
         if len(path_parts) == 3:
             model_name = '/'.join(path_parts[:-1])
             branch = path_parts[-1]
-            print('Reading from branch', branch)
             kwargs['revision'] = branch
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name, **kwargs)
@@ -50,16 +49,23 @@ class HFModel(model_base.ModelBase):
 
         self.temperature_policy_kwargs = temperature_policy_kwargs
         self.temperature_policy = None
+        self.enable_next_token_embedding = None
         if temperature_policy_kwargs is not None:
             # TODO: pipe through the flags that we want
             self.temperature_policy = self._get_temperature_policy_warper(
                 **temperature_policy_kwargs)
 
-    def _get_temperature_policy_warper(self, input_dim: int = 256, hidden_dim: int = 128, num_hidden_layers: int = 1, state_dict: dict = None):
-        # return logits_warpers.TemperaturePolicyWarper(self.tokenizer.vocab_size, 2048)
-        # Not sure why but the pythia model is outputting shape 50304 instead of the vocab size (50254)
+    def _get_temperature_policy_warper(self, input_dim: int = 256, hidden_dim: int = 128, num_hidden_layers: int = 1, state_dict: dict = None, enable_next_token_embedding: bool = False):
+        token_embedding_layer = None
+        token_embedding_dim = None
+        if enable_next_token_embedding:
+            self.enable_next_token_embedding = True
+            token_embedding_layer = self.model.gpt_neox.get_input_embeddings()
+            # Each input will have hidden_dim concatenated with it
+            extra_hidden_dim = self.model.gpt_neox.config.hidden_size
+            token_embedding_dim = extra_hidden_dim
         temperature_policy = logits_warpers.TemperaturePolicyWarper(
-            input_dim=input_dim, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers)
+            input_dim=input_dim, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers, token_embedding_layer=token_embedding_layer, token_embedding_dim=token_embedding_dim)
         if state_dict is not None:
             temperature_policy = temperature_policy.load_state_dict(state_dict)
         return temperature_policy
@@ -83,8 +89,12 @@ class HFModel(model_base.ModelBase):
         elif sampling_strategy == 'temperature-policy':
             if self.temperature_policy is None:
                 raise ValueError('No temperature policy initialized')
-            generate_kwargs = {'do_sample': True,
+            generate_kwargs = {'do_sample': True, 'max_new_tokens': 53,
                                'logits_processor': LogitsProcessorList([self.temperature_policy])}
+        elif sampling_strategy.startswith('fixed-temperature'):
+            temp = float(sampling_strategy.split(':')[-1])
+            print('Decoding with fixed temperature', temp)
+            generate_kwargs = {'do_sample': True, 'max_new_tokens': 53, 'temperature': temp + 1e-7}
         else:
             raise ValueError('Invalid sampling strategy ' + sampling_strategy)
         output = self.model.generate(input_ids=input_ids,
