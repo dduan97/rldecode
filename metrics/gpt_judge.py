@@ -31,7 +31,7 @@ class GptJudge():
 
     def _get_judge_prompt(self, prompt: str, response_a: str, response_b: str) -> str:
         if self.task == 'tldr':
-            prompt = constants.LLM_JUDGE_TLDR_PROMPT.format(
+            prompt = constants.LLM_JUDGE_TLDR_PROMPT_HUANG.format(
                 post=prompt, summary_a=response_a, summary_b=response_b)
             return prompt
         raise ValueError()
@@ -69,7 +69,7 @@ class GptJudge():
             vote = lines[-1]
             vote_score = self._parse_vote(vote)
             if vote_score is None:
-                print('Error in parsing GPT judge response! continuing...')
+                print('Error in parsing GPT judge response!', vote)
                 continue
             rationale = '\n'.join(lines[:-1])
             if flipped:
@@ -82,7 +82,10 @@ class GptJudge():
             'avg_score': np.mean(scores),
             'win_rate': np.mean(win_counts),
             'scores': scores,
-            'rationales': rationales
+            'rationales': rationales,
+            'prompt': prompt,
+            'response_a': response_a,
+            'response_b': response_b
         }
 
     def judge(self, prompts: list[str], responses_a: list[str], responses_b: list[str], *, max_workers: int = 4) -> dict[str, Any]:

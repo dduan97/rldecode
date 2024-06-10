@@ -65,7 +65,7 @@ class HFModel(model_base.ModelBase):
             extra_hidden_dim = self.model.gpt_neox.config.hidden_size
             token_embedding_dim = extra_hidden_dim
         temperature_policy = logits_warpers.TemperaturePolicyWarper(
-            input_dim=input_dim, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers, token_embedding_layer=token_embedding_layer, token_embedding_dim=token_embedding_dim)
+            input_dim=input_dim, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers, token_embedding_layer=token_embedding_layer, token_embedding_dim=token_embedding_dim, return_debug=True)
         if state_dict is not None:
             temperature_policy = temperature_policy.load_state_dict(state_dict)
         return temperature_policy
@@ -89,6 +89,8 @@ class HFModel(model_base.ModelBase):
         elif sampling_strategy == 'temperature-policy':
             if self.temperature_policy is None:
                 raise ValueError('No temperature policy initialized')
+            print('Using temperature policy for generation')
+            self.temperature_policy.set_debug(False)
             generate_kwargs = {'do_sample': True, 'max_new_tokens': 53,
                                'logits_processor': LogitsProcessorList([self.temperature_policy])}
         elif sampling_strategy.startswith('fixed-temperature'):
@@ -132,7 +134,7 @@ class HFModel(model_base.ModelBase):
             vocab_size = logits_shape[-1]
             logits = logits.reshape(-1, vocab_size)
             logits, tp_debug = self.temperature_policy(
-                None, logits, return_debug=True, policy_weight=policy_weight)
+                None, logits)
             logits = logits.reshape(logits_shape)
             debug = debug | tp_debug
 

@@ -55,6 +55,9 @@ def parse_args():
     parser.add_argument(
         "--train_count", type=int, default=-1, help="How many train examples to run on."
     )
+    parser.add_argument(
+        "--train_lr", type=float, default=1e-3, help="Learning rate"
+    )
     parser.add_argument("--train_batch_size", type=int,
                         help="Batch size for training")
     parser.add_argument("--train_num_epochs", type=int,
@@ -85,6 +88,9 @@ def parse_args():
     )
     parser.add_argument("--eval_batch_size", type=int,
                         help="Batch size for evaluation")
+    parser.add_argument(
+        "--eval_judge", type=str, help="Which judge to use"
+    )
 
     # Data flags
     parser.add_argument("--shuffle", type=bool,
@@ -112,14 +118,15 @@ def get_run_name(args):
 
 
 def get_eval_name(args):
-    return "EVAL:{task}_{sampling_strategy}_n:{count}_bs:{eval_bs}_model:{model}_ckpt:{ckpt}_seed:{seed}".format(
+    return "EVAL:{task}_{sampling_strategy}_judge:{judge}_n:{count}_bs:{eval_bs}_model:{model}_ckpt:{ckpt}_seed:{seed}".format(
         ckpt=args.tp_state_path.split('/')[-1] if args.tp_state_path else 'pt',
         task=args.eval_task,
         sampling_strategy=args.sampling_strategy,
         count=args.eval_count,
         eval_bs=args.eval_batch_size,
         model=args.model_name,
-        seed=args.seed
+        seed=args.seed,
+        judge=args.eval_judge,
     )
 
 
@@ -246,6 +253,7 @@ def evaluate_model(model, dataloader, sampling_strategy, judge, output_dir):
 
     # Kind of janky postprocessing?
     df["query"] = df["query"].apply(lambda x: x.replace("[pad]", ""))
+    df["query"] = df["query"].apply(lambda x: x.replace("[PAD]", ""))
 
     # Cache the scrapes here
     df.to_csv(f"{output_dir}/scrapes.csv")
@@ -270,7 +278,7 @@ def _policy_weight(step, max_steps):
 
 
 def train_model(
-    model, dataloader, *, validation_dataloader, sampling_strategy, judge, output_dir, seed, num_train_epochs, save_every, wandb_run, total_steps, grad_accumulation_steps
+    model, dataloader, *, validation_dataloader, sampling_strategy, judge, output_dir, seed, num_train_epochs, save_every, wandb_run, total_steps, grad_accumulation_steps, lr
 ):
     if sampling_strategy != "temperature-policy":
         # Not sure what we're training (not gonna do full DPO/SFT)
@@ -281,7 +289,7 @@ def train_model(
     # TODO: redesign HFModel to take in a pretrained LLM and an optional TP
     model.model = model.model.eval()
 
-    optimizer = torch.optim.Adam(model.parameters())
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     global_step = 0
     for epoch in tqdm(range(num_train_epochs)):
         for data in tqdm(dataloader):
@@ -410,7 +418,7 @@ def eval_main(args):
 
     scrape_model.to(_DEVICE)
 
-    judge = gpt_judge.GptJudge("gpt-4o")
+    judge = gpt_judge.GptJudge(args.eval_judge)
 
     scrape_df, judge_results = evaluate_model(
         scrape_model, dataloader, args.sampling_strategy, judge, subdir
@@ -472,7 +480,8 @@ def train_main(args):
         save_every=args.train_save_every,
         wandb_run=wandb_run,
         total_steps=args.train_total_steps,
-        grad_accumulation_steps=args.train_grad_accumulation_steps
+        grad_accumulation_steps=args.train_grad_accumulation_steps,
+        lr=args.train_lr
     )
 
 

@@ -14,3 +14,18 @@ you prefer and why. SECOND, on a new line, state only "A", "B", or "TIE" to indi
 choice. Your response should use the format:
 Comparison: <one-sentence comparison and explanation>
 Preferred: <"A", "B", or "TIE">"""
+
+LLM_JUDGE_TLDR_PROMPT_HUANG = """Which of the following summaries does a better job of summarizing the most \
+important points in the given forum post, without including unimportant or \
+irrelevant details? Judge based on accuracy, coverage, and coherence.
+Post:
+{post}
+Summary A:
+{summary_a}
+Summary B:
+{summary_b}
+FIRST provide a one-sentence comparison of the two summaries, explaining which \
+you prefer and why. SECOND, on a new line, state only "A" or "B" to indicate your \
+choice. Your response should use the format:
+Comparison: <one-sentence comparison and explanation>
+Preferred: <"A" or "B">"""

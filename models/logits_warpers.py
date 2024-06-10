@@ -8,7 +8,7 @@ import wandb
 
 
 class TemperaturePolicyWarper(LogitsWarper):
-    def __init__(self, input_dim: int, hidden_dim: int, num_hidden_layers: int, token_embedding_layer: nn.Module | Any = None, token_embedding_dim: int = None):
+    def __init__(self, input_dim: int, hidden_dim: int, num_hidden_layers: int, token_embedding_layer: nn.Module | Any = None, token_embedding_dim: int = None, return_debug: bool=False):
         # Idea: instead of taking the model logits as sparse inputs, maybe we take the topK logits, feed them through
         # some embedding layer, and then take a weighted average of them?
         self.k = input_dim
@@ -37,6 +37,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         self.token_embedding_layer = token_embedding_layer
 
         self.temps_and_inputs = {'temps': [], 'input_scores': [], 'next_token_embs': []}
+        self.return_debug = return_debug
 
     def _distribution(self, scores: torch.FloatTensor) -> torch.distributions.Distribution:
         preds = self.net(scores)  # shape (B, 2)
@@ -51,7 +52,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         # return D.Independent(dist, 2)
         return dist
 
-    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, *, policy_weight: float = 1., return_debug=False):
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
     # def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
         del input_ids
         # scores: shape (B, vocab_size)
@@ -91,7 +92,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         debug['raw_temp_net_output'] = temps
         scores_processed = scores / temps
         debug['processed_scores'] = scores_processed
-        if return_debug:
+        if self.return_debug:
             return scores_processed, debug
         return scores_processed
 
@@ -106,6 +107,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         return self.net.state_dict()
 
     def load_state_dict(self, state_dict: dict):
+        print('Loading state dict')
         self.net.load_state_dict(state_dict)
         return self
 
@@ -133,3 +135,6 @@ class TemperaturePolicyWarper(LogitsWarper):
 
     def eval(self):
         self.net.eval()
+
+    def set_debug(self, debug: bool):
+        self.return_debug = debug
