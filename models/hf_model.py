@@ -93,6 +93,10 @@ class HFModel(model_base.ModelBase):
             self.temperature_policy.set_debug(False)
             generate_kwargs = {'do_sample': True, 'max_new_tokens': 53,
                                'logits_processor': LogitsProcessorList([self.temperature_policy])}
+        elif sampling_strategy == 'edt':
+            print('Using EDT sampling')
+            generate_kwargs = {'do_sample': True, 'max_new_tokens': 53,
+                               'logits_processor': LogitsProcessorList([logits_warpers.EdtWarper()])}
         elif sampling_strategy.startswith('fixed-temperature'):
             temp = float(sampling_strategy.split(':')[-1])
             print('Decoding with fixed temperature', temp)

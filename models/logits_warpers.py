@@ -8,7 +8,7 @@ import wandb
 
 
 class TemperaturePolicyWarper(LogitsWarper):
-    def __init__(self, input_dim: int, hidden_dim: int, num_hidden_layers: int, token_embedding_layer: nn.Module | Any = None, token_embedding_dim: int = None, return_debug: bool=False):
+    def __init__(self, input_dim: int, hidden_dim: int, num_hidden_layers: int, token_embedding_layer: nn.Module | Any = None, token_embedding_dim: int = None, return_debug: bool = False):
         # Idea: instead of taking the model logits as sparse inputs, maybe we take the topK logits, feed them through
         # some embedding layer, and then take a weighted average of them?
         self.k = input_dim
@@ -36,7 +36,8 @@ class TemperaturePolicyWarper(LogitsWarper):
         self.optimizer = torch.optim.Adam(self.net.parameters())
         self.token_embedding_layer = token_embedding_layer
 
-        self.temps_and_inputs = {'temps': [], 'input_scores': [], 'next_token_embs': []}
+        self.temps_and_inputs = {'temps': [],
+                                 'input_scores': [], 'next_token_embs': []}
         self.return_debug = return_debug
 
     def _distribution(self, scores: torch.FloatTensor) -> torch.distributions.Distribution:
@@ -53,7 +54,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         return dist
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
-    # def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
+        # def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
         del input_ids
         # scores: shape (B, vocab_size)
         # reference: https://github.com/huggingface/transformers/blob/main/src/transformers/generation/logits_process.py#L230
@@ -88,7 +89,7 @@ class TemperaturePolicyWarper(LogitsWarper):
         # self.temps_and_inputs['input_scores'].append(scores.cpu().detach())
 
         # debug['scores'] = scores
-        debug['scores'] = model_inputs 
+        debug['scores'] = model_inputs
         debug['raw_temp_net_output'] = temps
         scores_processed = scores / temps
         debug['processed_scores'] = scores_processed
@@ -138,3 +139,26 @@ class TemperaturePolicyWarper(LogitsWarper):
 
     def set_debug(self, debug: bool):
         self.return_debug = debug
+
+
+class EdtWarper(LogitsWarper):
+    # https://arxiv.org/pdf/2403.14541
+    def __init__(self, t0: float = 1.0, theta: float = 2.0, N: float = 0.8):
+        self.t0 = t0
+        self.theta = theta
+        self.N = 0.8
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor):
+        del input_ids
+        # shape (B, vocab_size)
+        # Compute entropies
+        probs = torch.softmax(scores, dim=1)
+        entropies = -torch.sum(probs * torch.log2(probs),
+                               dim=1, keepdim=True)  # shape (B, 1)
+        exponents = self.theta / entropies 
+        temperatures = torch.pow(self.N, exponents) * self.t0 # shape (B, 1)
+        # Clip it just in case
+        temperatures = torch.clamp(temperatures, min=1e-7, max=1.0)
+        # print(temperatures)
+        scores /= temperatures
+        return scores
