@@ -18,8 +18,8 @@ from tasks import tldr
 
 
 # if torch.cuda.is_available() else torch.device('cpu')
-# _DEVICE = torch.device("cuda:0")
-_DEVICE = torch.device("cpu")
+_DEVICE = torch.device("cuda:0")
+# _DEVICE = torch.device("cpu")
 print("Using device", _DEVICE)
 
 

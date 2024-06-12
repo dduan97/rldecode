@@ -80,13 +80,13 @@ class TemperaturePolicyWarper(LogitsWarper):
 
             # Then we concat the reps here
             model_inputs = torch.cat([model_inputs, weighted_reps], dim=-1)
-            # self.temps_and_inputs['next_token_embs'].append(weighted_reps.cpu().detach())
+            self.temps_and_inputs['next_token_embs'].append(weighted_reps.cpu().detach())
 
         temps = self.net(model_inputs)
         temps = F.sigmoid(temps)
 
-        # self.temps_and_inputs['temps'].append(temps.cpu().detach())
-        # self.temps_and_inputs['input_scores'].append(scores.cpu().detach())
+        self.temps_and_inputs['temps'].append(temps.cpu().detach())
+        self.temps_and_inputs['input_scores'].append(scores.cpu().detach())
 
         # debug['scores'] = scores
         debug['scores'] = model_inputs
