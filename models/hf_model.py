@@ -1,6 +1,6 @@
 import torch
 import more_itertools
-from transformers import AutoTokenizer, AutoModelForCausalLM, LogitsProcessorList
+from transformers import AutoTokenizer, AutoModelForCausalLM, LogitsProcessorList, LogitsWarper
 import tqdm
 from typing import Any
 
@@ -15,7 +15,7 @@ _PATH_REMAPS = {
 
 
 class HFModel(model_base.ModelBase):
-    def __init__(self, model_name: str, quantize: bool = False, temperature_policy_kwargs: dict[str, Any] | None = None):
+    def __init__(self, model_name: str, quantize: bool = False):
         branch = None
         # If reading a local temperature policy checkpoint, format is <HF_SPEC>:::TP:local_path
         # load the HF model
@@ -47,66 +47,16 @@ class HFModel(model_base.ModelBase):
         # we use the padding token manually but do not resize the token embedding of the model
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
-        self.temperature_policy_kwargs = temperature_policy_kwargs
-        self.temperature_policy = None
-        self.enable_next_token_embedding = None
-        if temperature_policy_kwargs is not None:
-            # TODO: pipe through the flags that we want
-            self.temperature_policy = self._get_temperature_policy_warper(
-                **temperature_policy_kwargs)
-
-    def _get_temperature_policy_warper(self, input_dim: int = 256, hidden_dim: int = 128, num_hidden_layers: int = 1, state_dict: dict = None, enable_next_token_embedding: bool = False):
-        token_embedding_layer = None
-        token_embedding_dim = None
-        if enable_next_token_embedding:
-            self.enable_next_token_embedding = True
-            token_embedding_layer = self.model.gpt_neox.get_input_embeddings()
-            # Each input will have hidden_dim concatenated with it
-            extra_hidden_dim = self.model.gpt_neox.config.hidden_size
-            token_embedding_dim = extra_hidden_dim
-        temperature_policy = logits_warpers.TemperaturePolicyWarper(
-            input_dim=input_dim, hidden_dim=hidden_dim, num_hidden_layers=num_hidden_layers, token_embedding_layer=token_embedding_layer, token_embedding_dim=token_embedding_dim, return_debug=True)
-        if state_dict is not None:
-            temperature_policy = temperature_policy.load_state_dict(state_dict)
-        return temperature_policy
-
-    def predict(self, queries, *, max_new_tokens=128, sampling_strategy: str = 'greedy', temperature: float = 0.0, top_p: float = 0.95) -> str:
+    def generate(self, queries, **kwargs) -> str:
         context_length = queries.shape[1]
         attention_mask = queries != self.tokenizer.pad_token_id
         input_ids = torch.masked_fill(queries, ~attention_mask, 0)
 
-        if sampling_strategy == 'greedy':
-            generate_kwargs = {'do_sample': False,
-                               'max_new_tokens': max_new_tokens}
-        elif sampling_strategy == 'pythia-sft':
-            generate_kwargs = {'min_new_tokens': 53, 'max_new_tokens': 53, 'do_sample': True, 'temperature': (
-                0.01 + 1e-7), 'top_k': 0.0, 'top_p': 1.0}
-        elif sampling_strategy == 'pythia-ppo':
-            generate_kwargs = {'min_new_tokens': 53, 'max_new_tokens': 53, 'do_sample': True, 'temperature': (
-                0.7 + 1e-7), 'top_k': 0.0, 'top_p': 1.0}
-        elif sampling_strategy == 'nucleus':
-            generate_kwargs = {'temperature': temperature, 'top_p': top_p}
-        elif sampling_strategy == 'temperature-policy':
-            if self.temperature_policy is None:
-                raise ValueError('No temperature policy initialized')
-            print('Using temperature policy for generation')
-            self.temperature_policy.set_debug(False)
-            generate_kwargs = {'do_sample': True, 'max_new_tokens': 53,
-                               'logits_processor': LogitsProcessorList([self.temperature_policy])}
-        elif sampling_strategy == 'edt':
-            print('Using EDT sampling')
-            generate_kwargs = {'do_sample': True, 'max_new_tokens': 53,
-                               'logits_processor': LogitsProcessorList([logits_warpers.EdtWarper()])}
-        elif sampling_strategy.startswith('fixed-temperature'):
-            temp = float(sampling_strategy.split(':')[-1])
-            print('Decoding with fixed temperature', temp)
-            generate_kwargs = {'do_sample': True, 'max_new_tokens': 53, 'temperature': temp + 1e-7}
-        else:
-            raise ValueError('Invalid sampling strategy ' + sampling_strategy)
+        print(kwargs)
         output = self.model.generate(input_ids=input_ids,
                                      attention_mask=attention_mask,
                                      return_dict_in_generate=True,
-                                     **generate_kwargs)
+                                     **kwargs)
         generated_responses = torch.cat(
             (queries, output.sequences[:, context_length:]), dim=1)
         responses = generated_responses[:, context_length:]
@@ -116,7 +66,7 @@ class HFModel(model_base.ModelBase):
         )
         return decode_responses
 
-    def forward(self, query_responses, labels, *, policy_weight: float = 1.0, skip_temperature_policy: bool = False):
+    def forward(self, query_responses, labels, *, logits_warper: LogitsWarper | None = None):
         # DPO forward pass (on two examples)
         attention_mask = query_responses != self.tokenizer.pad_token_id
         input_ids = torch.masked_fill(query_responses, ~attention_mask, 0)
@@ -132,12 +82,13 @@ class HFModel(model_base.ModelBase):
 
         # Apply temperature policy
         debug = {}
-        if self.temperature_policy is not None and not skip_temperature_policy:
-            # First parameter of temperature policy is not used
+        if logits_warper:
+            # Reshape the logits into (B, vocab_size) which is what logits warpers need
             logits_shape = logits.shape
             vocab_size = logits_shape[-1]
             logits = logits.reshape(-1, vocab_size)
-            logits, tp_debug = self.temperature_policy(
+            # TODO: form the proper input ids and feed in as well
+            logits, tp_debug = logits_warper(
                 None, logits)
             logits = logits.reshape(logits_shape)
             debug = debug | tp_debug
@@ -149,43 +100,13 @@ class HFModel(model_base.ModelBase):
         chosen_logps = all_logps[:query_responses.shape[0] // 2]
         rejected_logps = all_logps[query_responses.shape[0] // 2:]
         return chosen_logps, rejected_logps, debug
+    
+    def get_token_embedding_layer(self):
+        return self.model.gpt_neox.get_input_embeddings()
 
-    def parameters(self):
-        if self.temperature_policy is not None:
-            return self.temperature_policy.parameters()
-        return []
+    def get_token_embedding_dim(self):
+        return 128
 
     def to(self, device):
-        self.model = self.model.to(device)
-        if self.temperature_policy is not None:
-            self.temperature_policy = self.temperature_policy.to(device)
+        self.model.to(device)
         return self
-
-    def get_checkpoint_info(self):
-        if self.temperature_policy is not None:
-            return {'type': 'temperature-policy', 'state_dict': self.temperature_policy.state_dict(), 'tp_kwargs': self.temperature_policy_kwargs}
-        return {}
-
-    def get_grad_norms(self):
-        if self.temperature_policy is not None:
-            return self.temperature_policy.get_grad_norms()
-        return torch.Tensor()
-
-    def get_grads(self):
-        if self.temperature_policy is not None:
-            return self.temperature_policy.get_grads()
-        return torch.Tensor()
-
-    def get_num_learnable_parameters(self):
-        if self.temperature_policy is not None:
-            return self.temperature_policy.get_num_learnable_parameters()
-        return 0
-
-    def get_parameter_norm(self):
-        if self.temperature_policy is not None:
-            return self.temperature_policy.get_parameter_norm()
-        return 0
-
-    def eval(self):
-        if self.temperature_policy is not None:
-            self.temperature_policy.eval()
